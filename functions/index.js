@@ -25,13 +25,13 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 // [END import]
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
+// Create and Deploy Your First Cloud Functions
+// https://firebase.google.com/docs/functions/write-firebase-functions
 exports.helloWorld = functions.https.onRequest((request, response) => {
  response.send("Hello World!");
 });
 
-// // Sample functions
+// Sample functions
 exports.sample = functions.https.onRequest((req, res) => {
   res.status(200).send(`<!doctype html>
     <head>
@@ -43,6 +43,59 @@ exports.sample = functions.https.onRequest((req, res) => {
   </html>`);
 });
 
+//////////////////////////////////////////////////////////////////////////////////////
+
+// Common Functions
+
+//■■■ json object concat
+function jsonConcat(o1, o2) {
+  for (var key in o2) {
+   o1[key] = o2[key];
+  }
+  return o1;
+ }
+
+//■■■ request get parameter Object Type
+function getParamsObj(req){
+	var params = req.query;
+	params = jsonConcat(params,req.params);
+	params = jsonConcat(params,req.body);
+	return params;
+}
+
+//■■■ request get parameter Json Type
+function getParamsJson(req){
+	var params = req.query;
+	params = jsonConcat(params,req.params);
+	params = jsonConcat(params,req.body);
+	return JSON.parse(JSON.stringify(params));
+}
+
+//■■■ common return vo
+function setResult(result_code,result_message,result_data){
+	var result = new Object();
+  result.RESULT_CODE = result_code;
+  result.RESULT_MESSAGE = result_message;
+  result.DATA = result_data;	
+	return JSON.parse(JSON.stringify(result));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+// App Info
+exports.appInfoInit = functions.https.onRequest(async (req, res) => {    
+    var params = getParamsObj(req);
+    console.log('----------[[appInfoInit]]----------  1 : '+ JSON.stringify(params));      
+    const writeResult = await admin.firestore().collection('users').add(getParamsJson(req));    
+    console.log('----------[[appInfoInit]]----------  2 : ');      
+    res.json(setResult("S","",`Message with ID: ${writeResult.id} added.`));    
+  });
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+
+### Cloud Filestore sample ###
 
 // [START addMessage]
 // Take the text parameter passed to this HTTP endpoint and insert it into the
@@ -81,4 +134,5 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
       });
   // [END makeUppercase]
   // [END all]
-  
+
+  */

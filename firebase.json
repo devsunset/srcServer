@@ -2,7 +2,7 @@
   "hosting": {
     "public": "public",
     "rewrites": [ {
-      "source": "/sample", "function": "sample"
+      "source": "/appInfoInit", "function": "appInfoInit"
     } ],
     "ignore": [
       "firebase.json",
