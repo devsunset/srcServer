@@ -23,7 +23,12 @@ const functions = require('firebase-functions');
 // The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require('firebase-admin');
 admin.initializeApp();
+
+// Get the `FieldValue` object
+var FieldValue = require('firebase-admin').firestore.FieldValue;
 // [END import]
+
+
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -59,7 +64,8 @@ function jsonConcat(o1, o2) {
 function getParamsObj(req){
 	var params = req.query;
 	params = jsonConcat(params,req.params);
-	params = jsonConcat(params,req.body);
+  params = jsonConcat(params,req.body);
+  params.SERVER_TIME_STAMP = FieldValue.serverTimestamp();
 	return params;
 }
 
@@ -72,8 +78,9 @@ function getParamsJson(req){
 }
 
 //■■■ common return vo
-function setResult(result_code,result_message,result_data){
-	var result = new Object();
+function setResult(call_function,result_code,result_message,result_data){
+  var result = new Object();
+  result.CALL_FUNCTION = call_function;
   result.RESULT_CODE = result_code;
   result.RESULT_MESSAGE = result_message;
   result.DATA = result_data;	
@@ -82,16 +89,81 @@ function setResult(result_code,result_message,result_data){
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+// Biz Logic Process Functions
+
 // App Info
 exports.appInfoInit = functions.https.onRequest(async (req, res) => {    
     var params = getParamsObj(req);
-    console.log('----------[[appInfoInit]]----------  1 : '+ JSON.stringify(params));      
-    const writeResult = await admin.firestore().collection('users').add(getParamsJson(req));    
-    console.log('----------[[appInfoInit]]----------  2 : ');      
-    res.json(setResult("S","",`Message with ID: ${writeResult.id} added.`));    
+    console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));        
+   
+    await admin.firestore().collection('USERS').doc(params.APP_UID).set(params);    
+
+    res.json(setResult("appInfoInit","S","",`doc ID: ${params.APP_UID} added.`));    
   });
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+// Sample Process Functions
+
+// Create Sample Functions
+exports.createSample = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[createSample]]---------- : '+ JSON.stringify(params));        
+ 
+  await admin.firestore().collection('SAMPLE').doc(params.APP_UID).set(params);    
+
+  res.json(setResult("createSample","S","",`doc ID: ${params.APP_UID} added.`));    
+ });
+
+ // Read Sample Functions (To-Do)
+exports.readSample = functions.https.onRequest(async (req, res) => {    
+  console.log('----------[[readSample]]---------- : '+ JSON.stringify(getParamsObj(req)));      
+
+  var listData = new Array();
+
+  var dataRef = admin.firestore().collection('SAMPLE');
+
+  await dataRef.where('MWS', '==', 'M').get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {                
+        listData.push(doc.data());
+      });
+    })
+    .catch(err => {     
+      console.log('Error getting documents', err);      
+      res.json(setResult("readSample","E",'Error getting documents : '+err,listData));    
+    });
+  
+  res.json(setResult("readSample","S","",listData));    
+ });
+
+ // Update Sample Functions
+exports.updateSample = functions.https.onRequest(async (req, res) => {    
+   var params = getParamsObj(req);
+   console.log('----------[[updateSample]]---------- : '+ JSON.stringify(params));  
+
+   await admin.firestore().collection('SAMPLE').doc(params.APP_UID).update({ APP_KEY: params.APP_KEY, AGE:params.AGE , COUNTRY:params.COUNTRY,SERVER_TIME_STAMP:params.SERVER_TIME_STAMP});
+
+   res.json(setResult("updateSample","S","",`update.`));    
+ });
+
+ // Delete Sample Functions
+exports.deleteSample = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[deleteSample]]---------- : '+ JSON.stringify(params));  
+
+  await  admin.firestore().collection('SAMPLE').doc(params.APP_UID).delete();
+   
+  res.json(setResult("deleteSample","S","",`delete.`));    
+ });
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 
 /* 
 
