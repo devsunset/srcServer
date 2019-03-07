@@ -7,17 +7,17 @@
 https://src-server.firebaseapp.com/appInfoInit?A=12345&B=1.0&C=-&D=M&E=KO&F=서울&G=40&H=Y&I=-&J=-&K=-&L=N
 
 // createJmple
-https://src-server.firebaseapp.com/createJmple?A=1&B=1.0&C=-&D=M&E=KO&F=서울&G=10&H=Y&I=A&J=A&KO=A&L=N
-https://src-server.firebaseapp.com/createJmple?A=2&B=1.0&C=-&D=W&E=KO&F=서울&G=20&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/createJmple?A=3&B=1.0&C=-&D=M&E=EN&F=충남&G=30&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/createJmple?A=4&B=1.0&C=-&D=W&E=US&F=X&G=40&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/createJmple?A=5&B=1.0&C=-&D=M&E=US&F=X&G=50&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/create?A=1&B=1.0&C=-&D=M&E=KO&F=서울&G=10&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/create?A=2&B=1.0&C=-&D=W&E=KO&F=서울&G=20&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/create?A=3&B=1.0&C=-&D=M&E=EN&F=충남&G=30&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/create?A=4&B=1.0&C=-&D=W&E=US&F=X&G=40&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/create?A=5&B=1.0&C=-&D=M&E=US&F=X&G=50&H=Y&I=-&J=-&K=-&L=N
 
 // readJmple
-https://src-server.firebaseapp.com/readJmple?G=10
+https://src-server.firebaseapp.com/read?G=10
 
 // updateJmple
-https://src-server.firebaseapp.com/updateJmple?A=1&B=2.0&C=app_push_key_value
+https://src-server.firebaseapp.com/update?A=1&B=2.0&C=app_push_key_value
 
 // deleteJmple
-https://src-server.firebaseapp.com/deleteJmple?A=5
+https://src-server.firebaseapp.com/delete?A=5

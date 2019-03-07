@@ -111,7 +111,7 @@ exports.read = functions.https.onRequest(async (req, res) => {
 
   var dataRef = admin.firestore().collection('SAMPLE');
 
-  await dataRef.where('AE', '==', params.AE).get()
+  await dataRef.where('G', '==', params.G).get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -130,7 +130,7 @@ exports.update = functions.https.onRequest(async (req, res) => {
    var params = getParamsObj(req);
    console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
 
-   await admin.firestore().collection('SAMPLE').doc(params.A).update({ AV: params.AV, AK:params.AK ,Z:params.Z});
+   await admin.firestore().collection('SAMPLE').doc(params.A).update({ A: params.A, B:params.B, C:params.C,Z:params.Z});
 
    res.json(setResult("update","S","",`update.`));    
  });
