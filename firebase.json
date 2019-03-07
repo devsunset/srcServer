@@ -4,11 +4,11 @@
     "rewrites": [ 
        {"source": "/helloWorld", "function": "helloWorld"}
       ,{"source": "/sample", "function": "sample"}
+      ,{"source": "/create", "function": "create"}
+      ,{"source": "/read", "function": "read"}
+      ,{"source": "/update", "function": "update"}
+      ,{"source": "/delete", "function": "delete"}
       ,{"source": "/appInfoInit", "function": "appInfoInit"}
-      ,{"source": "/createSample", "function": "createSample"}
-      ,{"source": "/readSample", "function": "readSample"}
-      ,{"source": "/updateSample", "function": "updateSample"}
-      ,{"source": "/deleteSample", "function": "deleteSample"}
      ],
     "ignore": [
       "firebase.json",

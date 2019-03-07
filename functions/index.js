@@ -13,22 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+//////////////////////////////////////////////////////////////////////////////////////
 'use strict';
+//////////////////////////////////////////////////////////////////////////////////////
+// LOG PRINT FLAG
+const LOG_FLAG = true;
 
-// [START all]
+
 // [START import]
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
-const functions = require('firebase-functions');
+      // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+      const functions = require('firebase-functions');
 
-// The Firebase Admin SDK to access the Firebase Realtime Database.
-const admin = require('firebase-admin');
-admin.initializeApp();
+      // The Firebase Admin SDK to access the Firebase Realtime Database.
+      const admin = require('firebase-admin');
+      admin.initializeApp();
 
-// Get the `FieldValue` object
-var FieldValue = require('firebase-admin').firestore.FieldValue;
+      // Get the `FieldValue` object
+      var FieldValue = require('firebase-admin').firestore.FieldValue;
 // [END import]
+//////////////////////////////////////////////////////////////////////////////////////
 
+// Common Functions
 
+//■■■ json object concat
+function jsonConcat(o1, o2) {
+  for (var key in o2) {
+   o1[key] = o2[key];
+  }
+  return o1;
+ }
+
+//■■■ request get parameter Object Type
+function getParamsObj(req){
+	var params = req.query;
+	params = jsonConcat(params,req.params);
+  params = jsonConcat(params,req.body);
+  params.Z = FieldValue.serverTimestamp();
+	return params;
+}
+
+//■■■ request get parameter Json Type
+function getParamsJson(req){
+	var params = req.query;
+	params = jsonConcat(params,req.params);
+	params = jsonConcat(params,req.body);
+	return JSON.parse(JSON.stringify(params));
+}
+
+//■■■ common return vo
+function setResult(call_function,result_code,result_message,result_data){
+  var result = new Object();
+  result.CF = call_function;
+  result.RC = result_code;
+  result.RM = result_message;
+  result.DA = result_data;	
+	return JSON.parse(JSON.stringify(result));
+}
+//////////////////////////////////////////////////////////////////////////////////////
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -47,83 +88,30 @@ exports.sample = functions.https.onRequest((req, res) => {
     </body>
   </html>`);
 });
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-// Common Functions
-
-//■■■ json object concat
-function jsonConcat(o1, o2) {
-  for (var key in o2) {
-   o1[key] = o2[key];
-  }
-  return o1;
- }
-
-//■■■ request get parameter Object Type
-function getParamsObj(req){
-	var params = req.query;
-	params = jsonConcat(params,req.params);
-  params = jsonConcat(params,req.body);
-  params.SERVER_TIME_STAMP = FieldValue.serverTimestamp();
-	return params;
-}
-
-//■■■ request get parameter Json Type
-function getParamsJson(req){
-	var params = req.query;
-	params = jsonConcat(params,req.params);
-	params = jsonConcat(params,req.body);
-	return JSON.parse(JSON.stringify(params));
-}
-
-//■■■ common return vo
-function setResult(call_function,result_code,result_message,result_data){
-  var result = new Object();
-  result.CALL_FUNCTION = call_function;
-  result.RESULT_CODE = result_code;
-  result.RESULT_MESSAGE = result_message;
-  result.DATA = result_data;	
-	return JSON.parse(JSON.stringify(result));
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-// Biz Logic Process Functions
-
-// App Info
-exports.appInfoInit = functions.https.onRequest(async (req, res) => {    
-    var params = getParamsObj(req);
-    console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));        
-   
-    await admin.firestore().collection('USERS').doc(params.APP_UID).set(params);    
-
-    res.json(setResult("appInfoInit","S","",`doc ID: ${params.APP_UID} added.`));    
-  });
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Sample Process Functions
 
 // Create Sample Functions
-exports.createSample = functions.https.onRequest(async (req, res) => {    
+exports.create = functions.https.onRequest(async (req, res) => {    
   var params = getParamsObj(req);
-  console.log('----------[[createSample]]---------- : '+ JSON.stringify(params));        
+  console.log('----------[[create]]---------- : '+ JSON.stringify(params));        
  
-  await admin.firestore().collection('SAMPLE').doc(params.APP_UID).set(params);    
+  await admin.firestore().collection('SAMPLE').doc(params.A).set(params);    
 
-  res.json(setResult("createSample","S","",`doc ID: ${params.APP_UID} added.`));    
+  res.json(setResult("create","S","",`DOC ID: ${params.A} added.`));    
  });
 
  // Read Sample Functions (To-Do)
-exports.readSample = functions.https.onRequest(async (req, res) => {    
-  console.log('----------[[readSample]]---------- : '+ JSON.stringify(getParamsObj(req)));      
+exports.read = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[read]]---------- : '+ JSON.stringify(params));    
 
   var listData = new Array();
 
   var dataRef = admin.firestore().collection('SAMPLE');
 
-  await dataRef.where('MWS', '==', 'M').get()
+  await dataRef.where('AE', '==', params.AE).get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -131,42 +119,33 @@ exports.readSample = functions.https.onRequest(async (req, res) => {
     })
     .catch(err => {     
       console.log('Error getting documents', err);      
-      res.json(setResult("readSample","E",'Error getting documents : '+err,listData));    
+      res.json(setResult("read","E",'Error getting documents : '+err,listData));    
     });
   
-  res.json(setResult("readSample","S","",listData));    
+  res.json(setResult("read","S","",listData));    
  });
 
  // Update Sample Functions
-exports.updateSample = functions.https.onRequest(async (req, res) => {    
+exports.update = functions.https.onRequest(async (req, res) => {    
    var params = getParamsObj(req);
-   console.log('----------[[updateSample]]---------- : '+ JSON.stringify(params));  
+   console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
 
-   await admin.firestore().collection('SAMPLE').doc(params.APP_UID).update({ APP_KEY: params.APP_KEY, AGE:params.AGE , COUNTRY:params.COUNTRY,SERVER_TIME_STAMP:params.SERVER_TIME_STAMP});
+   await admin.firestore().collection('SAMPLE').doc(params.A).update({ AV: params.AV, AK:params.AK ,Z:params.Z});
 
-   res.json(setResult("updateSample","S","",`update.`));    
+   res.json(setResult("update","S","",`update.`));    
  });
 
  // Delete Sample Functions
-exports.deleteSample = functions.https.onRequest(async (req, res) => {    
+exports.delete = functions.https.onRequest(async (req, res) => {    
   var params = getParamsObj(req);
-  console.log('----------[[deleteSample]]---------- : '+ JSON.stringify(params));  
+  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));  
 
-  await  admin.firestore().collection('SAMPLE').doc(params.APP_UID).delete();
+  await  admin.firestore().collection('SAMPLE').doc(params.A).delete();
    
-  res.json(setResult("deleteSample","S","",`delete.`));    
+  res.json(setResult("delete","S","",`delete.`));    
  });
 
-//////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 /* 
-
 ### Cloud Filestore sample ###
 
 // [START addMessage]
@@ -206,5 +185,22 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
       });
   // [END makeUppercase]
   // [END all]
+  */  
 
-  */
+//////////////////////////////////////////////////////////////////////////////////////
+
+// Biz Logic Process Functions
+
+// App Info
+exports.appInfoInit = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
+   }  
+   
+    await admin.firestore().collection('APP_USERS').doc(params.A).set(params);     
+
+    res.json(setResult("appInfoInit","S","",`DOC ID: ${params.A} added.`));    
+  });
+
+//////////////////////////////////////////////////////////////////////////////////////
