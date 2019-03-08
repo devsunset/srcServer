@@ -48,7 +48,7 @@ function getParamsObj(req){
 	var params = req.query;
 	params = jsonConcat(params,req.params);
   params = jsonConcat(params,req.body);
-  params.Z = FieldValue.serverTimestamp();
+  params.Z_LAST_ACCESS_TIME = FieldValue.serverTimestamp();
 	return params;
 }
 
@@ -63,10 +63,10 @@ function getParamsJson(req){
 //■■■ common return vo
 function setResult(call_function,result_code,result_message,result_data){
   var result = new Object();
-  result.CF = call_function;
-  result.RC = result_code;
-  result.RM = result_message;
-  result.DA = result_data;	
+  result.CALL_FUNCTION = call_function;
+  result.RESULT_CODE = result_code;
+  result.RESULT_MESSAGE = result_message;
+  result.RESULT_DATA = result_data;	
 	return JSON.parse(JSON.stringify(result));
 }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -95,11 +95,20 @@ exports.sample = functions.https.onRequest((req, res) => {
 // Create Sample Functions
 exports.create = functions.https.onRequest(async (req, res) => {    
   var params = getParamsObj(req);
-  console.log('----------[[create]]---------- : '+ JSON.stringify(params));        
- 
-  await admin.firestore().collection('SAMPLE').doc(params.A).set(params);    
+  console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
+    
+  params.X_BLACK_LIST = "-";
+  params.X_BLACK_LIST_CHANGE_REASON = "-";
+  params.X_BLACK_LIST_CHANGE_TIME = "-";
+  params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
-  res.json(setResult("create","S","",`DOC ID: ${params.A} added.`));    
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);     
+    res.json(setResult("create","S","",`DOC ID: ${params.APP_ID} created.`));   
+  }catch(err){
+    console.error(err);
+    res.json(setResult("create","E",err.stack,`DOC ID: ${params.APP_ID}`));       
+  }
  });
 
  // Read Sample Functions (To-Do)
@@ -108,10 +117,10 @@ exports.read = functions.https.onRequest(async (req, res) => {
   console.log('----------[[read]]---------- : '+ JSON.stringify(params));    
 
   var listData = new Array();
-
+  
   var dataRef = admin.firestore().collection('SAMPLE');
 
-  await dataRef.where('G', '==', params.G).get()
+  await dataRef.where('AGE', '==', params.AGE).get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -119,7 +128,7 @@ exports.read = functions.https.onRequest(async (req, res) => {
     })
     .catch(err => {     
       console.log('Error getting documents', err);      
-      res.json(setResult("read","E",'Error getting documents : '+err,listData));    
+      res.json(setResult("read","E",'Error getting documents : '+err.stack,listData));    
     });
   
   res.json(setResult("read","S","",listData));    
@@ -130,9 +139,32 @@ exports.update = functions.https.onRequest(async (req, res) => {
    var params = getParamsObj(req);
    console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
 
-   await admin.firestore().collection('SAMPLE').doc(params.A).update({ A: params.A, B:params.B, C:params.C,Z:params.Z});
-
-   res.json(setResult("update","S","",`update.`));    
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(    
+         { 
+           APP_KEY : params.APP_KEY
+          ,APP_NUMBER : params.APP_NUMBER
+          ,APP_VER : params.APP_VER
+          ,AGE : params.AGE
+          ,AREA : params.AREA
+          ,DOMESTIC_OVERSEAS : params.DOMESTIC_OVERSEAS
+          ,GENDER : params.GENDER
+          ,LANG : params.LANG
+          ,SET_AGE_YN : params.SET_AGE_YN
+          ,SET_AREA_YN : params.SET_AREA_YN
+          ,SET_DOMESTIC_OVERSEAS_YN : params.SET_DOMESTIC_OVERSEAS_YN
+          ,SET_GENDER_YN : params.SET_GENDER_YN
+          ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
+          ,SET_SOUND_YN : params.SET_SOUND_YN
+          ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
+          ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+         }
+      );
+    res.json(setResult("update","S","",`DOC ID: ${params.APP_ID} updated.`)); 
+  }catch(err){
+    console.error(err);
+    res.json(setResult("update","E",err.stack,`DOC ID: ${params.APP_ID}`));      
+  }       
  });
 
  // Delete Sample Functions
@@ -140,9 +172,13 @@ exports.delete = functions.https.onRequest(async (req, res) => {
   var params = getParamsObj(req);
   console.log('----------[[delete]]---------- : '+ JSON.stringify(params));  
 
-  await  admin.firestore().collection('SAMPLE').doc(params.A).delete();
-   
-  res.json(setResult("delete","S","",`delete.`));    
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
+    res.json(setResult("delete","S","",`DOC ID: ${params.APP_ID} deleted.`)); 
+  }catch(err){
+    console.error(err);
+    res.json(setResult("delete","E",err.stack,`DOC ID: ${params.APP_ID}`));      
+  }      
  });
 
 /* 
@@ -191,16 +227,59 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
 
 // Biz Logic Process Functions
 
-// App Info
+// App Info Init
 exports.appInfoInit = functions.https.onRequest(async (req, res) => { 
    if(LOG_FLAG){
       var params = getParamsObj(req);
       console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
    }  
-   
-    await admin.firestore().collection('APP_USERS').doc(params.A).set(params);     
-
-    res.json(setResult("appInfoInit","S","",`DOC ID: ${params.A} added.`));    
+    params.X_BLACK_LIST = "-";
+    params.X_BLACK_LIST_CHANGE_REASON = "-";
+    params.X_BLACK_LIST_CHANGE_TIME = "-";
+    params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+ 
+    try{
+      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
+      res.json(setResult("appInfoInit","S","",`DOC ID: ${params.APP_ID} created.`));   
+    }catch(err){
+      console.error(err);
+      res.json(setResult("appInfoInit","E",err.stack,`DOC ID: ${params.APP_ID}`));       
+    }
   });
+
+  // App Info Update
+exports.appInfoUpdate = functions.https.onRequest(async (req, res) => { 
+  if(LOG_FLAG){
+     var params = getParamsObj(req);
+     console.log('----------[[appInfoUpdate]]---------- : '+ JSON.stringify(params));      
+  }  
+  
+  try{
+    await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
+      { 
+         APP_KEY : params.APP_KEY
+        ,APP_NUMBER : params.APP_NUMBER
+        ,APP_VER : params.APP_VER
+        ,AGE : params.AGE
+        ,AREA : params.AREA
+        ,DOMESTIC_OVERSEAS : params.DOMESTIC_OVERSEAS
+        ,GENDER : params.GENDER
+        ,LANG : params.LANG
+        ,SET_AGE_YN : params.SET_AGE_YN
+        ,SET_AREA_YN : params.SET_AREA_YN
+        ,SET_DOMESTIC_OVERSEAS_YN : params.SET_DOMESTIC_OVERSEAS_YN
+        ,SET_GENDER_YN : params.SET_GENDER_YN
+        ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
+        ,SET_SOUND_YN : params.SET_SOUND_YN
+        ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
+        ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+      }
+    );
+    res.json(setResult("appInfoUpdate","S","",`DOC ID: ${params.APP_ID} updated.`)); 
+  }catch(err){
+    console.error(err);
+    res.json(setResult("appInfoUpdate","E",err.stack,`DOC ID: ${params.APP_ID}`));    
+  }
+ });
 
 //////////////////////////////////////////////////////////////////////////////////////

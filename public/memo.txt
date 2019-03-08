@@ -1,23 +1,93 @@
 
 
+---------------------------------------------------------------------------------
 
-
+# TEST URL
 
 // appInfoInit
-https://src-server.firebaseapp.com/appInfoInit?A=12345&B=1.0&C=-&D=M&E=KO&F=서울&G=40&H=Y&I=-&J=-&K=-&L=N
+https://src-server.firebaseapp.com/appInfoInit?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=10&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
 
-// createJmple
-https://src-server.firebaseapp.com/create?A=1&B=1.0&C=-&D=M&E=KO&F=서울&G=10&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/create?A=2&B=1.0&C=-&D=W&E=KO&F=서울&G=20&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/create?A=3&B=1.0&C=-&D=M&E=EN&F=충남&G=30&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/create?A=4&B=1.0&C=-&D=W&E=US&F=X&G=40&H=Y&I=-&J=-&K=-&L=N
-https://src-server.firebaseapp.com/create?A=5&B=1.0&C=-&D=M&E=US&F=X&G=50&H=Y&I=-&J=-&K=-&L=N
+// appInfoInit
+https://src-server.firebaseapp.com/appInfoUpdate?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=2.0&AGE=10&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
 
-// readJmple
-https://src-server.firebaseapp.com/read?G=10
+---------------------------------------------------------------------------------
 
-// updateJmple
-https://src-server.firebaseapp.com/update?A=1&B=2.0&C=app_push_key_value
+// create
+https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=10&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
+https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=20&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
+https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=30&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
+https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=40&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
+https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=1.0&AGE=50&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
 
-// deleteJmple
-https://src-server.firebaseapp.com/delete?A=5
+// read
+https://src-server.firebaseapp.com/read?AGE=10
+
+// update
+https://src-server.firebaseapp.com/update?APP_ID=1&APP_KEY=___push_key___&APP_NUMBER=123456789&APP_VER=2.0&AGE=10&AREA=서울&DOMESTIC_OVERSEAS=D&GENDER=M&LANG=KO&SET_AGE_YN=N&SET_AREA_YN=N&SET_DOMESTIC_OVERSEAS_YN=N&SET_GENDER_YN=N&SET_NEW_RECEIVE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
+
+// delete
+https://src-server.firebaseapp.com/delete?APP_ID=5
+
+
+---------------------------------------------------------------------------------
+
+# GUID 만들기             
+String uniqueID = UUID.randomUUID().toString
+
+# 인스턴스 ID 만들기      
+String iid = InstanceID.getInstance(context).getId()
+
+---------------------------------------------------------------------------------
+
+# APP_USERS (SERVER)
+
+APP_ID
+APP_KEY
+APP_NUMBER
+APP_VER
+
+AGE
+AREA
+DOMESTIC_OVERSEAS
+GENDER
+LANG
+
+SET_AGE_YN
+SET_AREA_YN
+SET_DOMESTIC_OVERSEAS_YN
+SET_GENDER_YN
+SET_NEW_RECEIVE_YN
+SET_SOUND_YN
+SET_VIBRATION_YN
+
+X_BLACK_LIST
+X_BLACK_LIST_CHANGE_REASON
+X_BLACK_LIST_CHANGE_TIME
+
+Z_INIT_ACCESS_TIME
+Z_LAST_ACCESS_TIME
+
+---------------------------------------------------------------------------------
+
+# ACCOUNT_INFO  (APP)
+
+APP_ID
+APP_KEY
+APP_NUMBER
+APP_VER
+
+AGE
+AREA
+DOMESTIC_OVERSEAS
+GENDER
+LANG
+
+SET_AGE_YN
+SET_AREA_YN
+SET_DOMESTIC_OVERSEAS_YN
+SET_GENDER_YN
+SET_NEW_RECEIVE_YN
+SET_SOUND_YN
+SET_VIBRATION_YN
+
+---------------------------------------------------------------------------------

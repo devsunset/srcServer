@@ -9,6 +9,7 @@
       ,{"source": "/update", "function": "update"}
       ,{"source": "/delete", "function": "delete"}
       ,{"source": "/appInfoInit", "function": "appInfoInit"}
+      ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}
      ],
     "ignore": [
       "firebase.json",
