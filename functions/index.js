@@ -97,9 +97,7 @@ exports.create = functions.https.onRequest(async (req, res) => {
   var params = getParamsObj(req);
   console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
     
-  params.X_BLACK_LIST = "-";
-  params.X_BLACK_LIST_CHANGE_REASON = "-";
-  params.X_BLACK_LIST_CHANGE_TIME = "-";
+  params.X_BLACK_LIST_COUNT = "0";
   params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
   try{
@@ -120,7 +118,7 @@ exports.read = functions.https.onRequest(async (req, res) => {
   
   var dataRef = admin.firestore().collection('SAMPLE');
 
-  await dataRef.where('AGE', '==', params.AGE).get()
+  await dataRef.where('APP_VER', '==', params.APP_VER).get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -145,16 +143,15 @@ exports.update = functions.https.onRequest(async (req, res) => {
            APP_KEY : params.APP_KEY
           ,APP_NUMBER : params.APP_NUMBER
           ,APP_VER : params.APP_VER
-          ,AGE : params.AGE
-          ,AREA : params.AREA
-          ,DOMESTIC_OVERSEAS : params.DOMESTIC_OVERSEAS
+          ,COUNTRY : params.COUNTRY
           ,GENDER : params.GENDER
           ,LANG : params.LANG
-          ,SET_AGE_YN : params.SET_AGE_YN
-          ,SET_AREA_YN : params.SET_AREA_YN
-          ,SET_DOMESTIC_OVERSEAS_YN : params.SET_DOMESTIC_OVERSEAS_YN
-          ,SET_GENDER_YN : params.SET_GENDER_YN
+          ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
           ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
+          ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
+          ,SET_SEND_GENDER : params.SET_SEND_GENDER
+          ,SET_SEND_LIST_HIDE_YN : params.SET_SEND_LIST_HIDE_YN
+          ,SET_SOUND_YN : params.SET_SOUND_YN
           ,SET_SOUND_YN : params.SET_SOUND_YN
           ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
           ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
@@ -233,9 +230,7 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
    }  
-    params.X_BLACK_LIST = "-";
-    params.X_BLACK_LIST_CHANGE_REASON = "-";
-    params.X_BLACK_LIST_CHANGE_TIME = "-";
+    params.X_BLACK_LIST_COUNT = "0";
     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
  
     try{
@@ -247,7 +242,7 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
     }
   });
 
-  // App Info Update
+// App Info Update
 exports.appInfoUpdate = functions.https.onRequest(async (req, res) => { 
   if(LOG_FLAG){
      var params = getParamsObj(req);
@@ -260,16 +255,15 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
          APP_KEY : params.APP_KEY
         ,APP_NUMBER : params.APP_NUMBER
         ,APP_VER : params.APP_VER
-        ,AGE : params.AGE
-        ,AREA : params.AREA
-        ,DOMESTIC_OVERSEAS : params.DOMESTIC_OVERSEAS
+        ,COUNTRY : params.COUNTRY
         ,GENDER : params.GENDER
         ,LANG : params.LANG
-        ,SET_AGE_YN : params.SET_AGE_YN
-        ,SET_AREA_YN : params.SET_AREA_YN
-        ,SET_DOMESTIC_OVERSEAS_YN : params.SET_DOMESTIC_OVERSEAS_YN
-        ,SET_GENDER_YN : params.SET_GENDER_YN
+        ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
         ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
+        ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
+        ,SET_SEND_GENDER : params.SET_SEND_GENDER
+        ,SET_SEND_LIST_HIDE_YN : params.SET_SEND_LIST_HIDE_YN
+        ,SET_SOUND_YN : params.SET_SOUND_YN
         ,SET_SOUND_YN : params.SET_SOUND_YN
         ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
         ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
