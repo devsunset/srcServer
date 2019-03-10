@@ -131,11 +131,4 @@ x. Android Layout
 
 x. Google Ads
 
-
 ---------------------------------------------------------------------------------
-
-@OnClick(R.id.btnSample)
-public void onButtonClick(View view) {
-Toast.makeText(this, "Button Click", Toast.LENGTH_SHORT).show();
-}
-
