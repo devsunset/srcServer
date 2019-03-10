@@ -1,5 +1,17 @@
 
 
+
+---------------------------------------------------------------------------------
+
+To-Do List
+
+---------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+
+# Server
+
 ---------------------------------------------------------------------------------
 
 # TEST URL
@@ -64,7 +76,13 @@ Z_LAST_ACCESS_TIME
 
 ---------------------------------------------------------------------------------
 
+# App
+
+---------------------------------------------------------------------------------
+
 # ACCOUNT_INFO  (APP)
+
+INIT_INSTALL_YN
 
 APP_ID
 APP_KEY
@@ -84,3 +102,40 @@ SET_SOUND_YN
 SET_VIBRATION_YN
 
 ---------------------------------------------------------------------------------
+
+0. Common Utils
+
+1. SharedPreferences  User Info Setting
+
+2. Network Connect (Retrofit - Http)
+
+3. FCM Connect (Push)
+
+4. Android ORM (Room - SQLite CRUD)
+
+5. ListView (Customer ListView - Chat Style)
+
+6. Toast
+
+7. Word wide service
+
+8. Voice
+
+9. Image
+
+---------------------------------------------------------------------------------
+
+x. Android Design
+
+x. Android Layout
+
+x. Google Ads
+
+
+---------------------------------------------------------------------------------
+
+@OnClick(R.id.btnSample)
+public void onButtonClick(View view) {
+Toast.makeText(this, "Button Click", Toast.LENGTH_SHORT).show();
+}
+
