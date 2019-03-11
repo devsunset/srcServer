@@ -45,19 +45,19 @@ function jsonConcat(o1, o2) {
 
 //■■■ request get parameter Object Type
 function getParamsObj(req){
-	var params = req.query;
-	params = jsonConcat(params,req.params);
+  var params = req.query;
+  params = jsonConcat(params,req.params);
   params = jsonConcat(params,req.body);
   params.Z_LAST_ACCESS_TIME = FieldValue.serverTimestamp();
-	return params;
+  return params;
 }
 
 //■■■ request get parameter Json Type
 function getParamsJson(req){
-	var params = req.query;
-	params = jsonConcat(params,req.params);
-	params = jsonConcat(params,req.body);
-	return JSON.parse(JSON.stringify(params));
+  var params = req.query;
+  params = jsonConcat(params,req.params);
+  params = jsonConcat(params,req.body);
+  return JSON.parse(JSON.stringify(params));
 }
 
 //■■■ common return vo
@@ -66,8 +66,15 @@ function setResult(call_function,result_code,result_message,result_data){
   result.CALL_FUNCTION = call_function;
   result.RESULT_CODE = result_code;
   result.RESULT_MESSAGE = result_message;
-  result.RESULT_DATA = result_data;	
-	return JSON.parse(JSON.stringify(result));
+  if(result_data ==''){
+    var listData = new Array();
+    var temp = new Object();
+    listData.push(temp);
+    result.RESULT_DATA = listData;	
+  }else{
+    result.RESULT_DATA = result_data;	
+  }
+  return JSON.parse(JSON.stringify(result));
 }
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,10 +109,10 @@ exports.create = functions.https.onRequest(async (req, res) => {
 
   try{
     await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);     
-    res.json(setResult("create","S","",`DOC ID: ${params.APP_ID} created.`));   
+    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));   
   }catch(err){
     console.error(err);
-    res.json(setResult("create","E",err.stack,`DOC ID: ${params.APP_ID}`));       
+    res.json(setResult("create","E",err.stack,``));       
   }
  });
 
@@ -126,7 +133,7 @@ exports.read = functions.https.onRequest(async (req, res) => {
     })
     .catch(err => {     
       console.log('Error getting documents', err);      
-      res.json(setResult("read","E",'Error getting documents : '+err.stack,listData));    
+      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));    
     });
   
   res.json(setResult("read","S","",listData));    
@@ -157,10 +164,10 @@ exports.update = functions.https.onRequest(async (req, res) => {
           ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
          }
       );
-    res.json(setResult("update","S","",`DOC ID: ${params.APP_ID} updated.`)); 
+    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
   }catch(err){
     console.error(err);
-    res.json(setResult("update","E",err.stack,`DOC ID: ${params.APP_ID}`));      
+    res.json(setResult("update","E",err.stack,``));      
   }       
  });
 
@@ -171,10 +178,10 @@ exports.delete = functions.https.onRequest(async (req, res) => {
 
   try{
     await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
-    res.json(setResult("delete","S","",`DOC ID: ${params.APP_ID} deleted.`)); 
+    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``)); 
   }catch(err){
     console.error(err);
-    res.json(setResult("delete","E",err.stack,`DOC ID: ${params.APP_ID}`));      
+    res.json(setResult("delete","E",err.stack,``));      
   }      
  });
 
@@ -235,10 +242,10 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
  
     try{
       await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
-      res.json(setResult("appInfoInit","S","",`DOC ID: ${params.APP_ID} created.`));   
+      res.json(setResult("appInfoInit","S",`DOC ID: ${params.APP_ID} created.`,''));   
     }catch(err){
       console.error(err);
-      res.json(setResult("appInfoInit","E",err.stack,`DOC ID: ${params.APP_ID}`));       
+      res.json(setResult("appInfoInit","E",err.stack,``));       
     }
   });
 
@@ -269,11 +276,35 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
         ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
       }
     );
-    res.json(setResult("appInfoUpdate","S","",`DOC ID: ${params.APP_ID} updated.`)); 
+    res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
   }catch(err){
     console.error(err);
-    res.json(setResult("appInfoUpdate","E",err.stack,`DOC ID: ${params.APP_ID}`));    
+    res.json(setResult("appInfoUpdate","E",err.stack,``));    
   }
  });
+
+// App Info Read
+ exports.appInfoRead = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[appInfoRead]]---------- : '+ JSON.stringify(params));    
+
+  var listData = new Array();
+  
+  var dataRef = admin.firestore().collection('APP_USERS');
+
+  await dataRef.where('APP_VER', '==', params.APP_VER).get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {                
+        listData.push(doc.data());
+      });
+    })
+    .catch(err => {     
+      console.log('Error getting documents', err);      
+      res.json(setResult("appInfoRead","E",'Error getting documents : '+err.stack,''));    
+    });
+  
+  res.json(setResult("appInfoRead","S","",listData));    
+ });
+
 
 //////////////////////////////////////////////////////////////////////////////////////
