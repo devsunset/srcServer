@@ -3,65 +3,25 @@
 
 ---------------------------------------------------------------------------------
 
-To-Do List
+[[ DB ]]
 
 ---------------------------------------------------------------------------------
 
-
 ---------------------------------------------------------------------------------
-
-# Server
-
+# SERVER - APP_USERS
 ---------------------------------------------------------------------------------
-
-# TEST URL
-
-// appInfoInit
-https://src-server.firebaseapp.com/appInfoInit?APP_ID=1&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-
-// appInfoInit
-https://src-server.firebaseapp.com/appInfoUpdate?APP_ID=1&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=2.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-
----------------------------------------------------------------------------------
-
-// create
-https://src-server.firebaseapp.com/create?APP_ID=1&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-https://src-server.firebaseapp.com/create?APP_ID=2&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-https://src-server.firebaseapp.com/create?APP_ID=3&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-https://src-server.firebaseapp.com/create?APP_ID=4&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-https://src-server.firebaseapp.com/create?APP_ID=5&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=1.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-
-// read
-https://src-server.firebaseapp.com/read?APP_VER=1.0
-
-// update
-https://src-server.firebaseapp.com/update?APP_ID=1&APP_KEY=-&APP_NUMBER=A1234567890&APP_VER=2.0&COUNTRY=KR&GENDER=M&LANG=ko_KR&SET_BYE_CONFIRM_YN=N&SET_NEW_RECEIVE_YN=N&SET_SEND_COUNTRY=L&SET_SEND_GENDER=A&SET_SEND_LIST_HIDE_YN=N&SET_SOUND_YN=Y&SET_VIBRATION_YN=Y
-
-// delete
-https://src-server.firebaseapp.com/delete?APP_ID=4
-
-
----------------------------------------------------------------------------------
-
-# GUID 만들기             
-String uniqueID = UUID.randomUUID().toString
-
-# 인스턴스 ID 만들기      
-String iid = InstanceID.getInstance(context).getId()
-
----------------------------------------------------------------------------------
-
-# APP_USERS (SERVER)
 
 APP_ID
 APP_KEY
 APP_NUMBER
+APP_PHONE
 APP_VER
-
 COUNTRY
+COUNTRY_NAME
 GENDER
 LANG
-
+NOTICE_NUMBER
+SET_ALARM_YN
 SET_BYE_CONFIRM_YN
 SET_NEW_RECEIVE_YN
 SET_SEND_COUNTRY
@@ -69,30 +29,89 @@ SET_SEND_GENDER
 SET_SEND_LIST_HIDE_YN
 SET_SOUND_YN
 SET_VIBRATION_YN
-
 X_BLACK_LIST_COUNT
 Z_INIT_ACCESS_TIME
 Z_LAST_ACCESS_TIME
 
 ---------------------------------------------------------------------------------
-
-# App
-
+# SERVER - APP_TALK_MAIN
 ---------------------------------------------------------------------------------
 
-# ACCOUNT_INFO  (APP)
+ATX_ID
+ATX_INIT_TIME
+ATX_STATUS
+FROM_APP_ID
+FROM_APP_KEY
+FROM_COUNTRY
+FROM_COUNTRY_NAME
+FROM_GENDER
+FROM_LANG
+TO_APP_ID		  
+TO_APP_KEY
+TO_COUNTRY
+TO_COUNTRY_NAME
+TO_GENDER
+TO_LANG
 
-INIT_INSTALL_YN
+---------------------------------------------------------------------------------
+# SERVER - APP_TALK_THREAD
+---------------------------------------------------------------------------------
+
+ATX_ID
+TALK_ACCESS_TIME
+TALK_APP_ID
+TALK_ID
+TALK_COUNTRY
+TALK_COUNTRY_NAME
+TALK_GENDER
+TALK_TEXT
+TALK_TYPE
+
+---------------------------------------------------------------------------------
+# SERVER - APP_BLACK_LIST
+---------------------------------------------------------------------------------
+
+ATX_ID
+ATX_INIT_TIME
+FROM_APP_ID
+FROM_COUNTRY
+FROM_COUNTRY_NAME
+FROM_GENDER
+FROM_LANG	  
+TO_APP_ID	
+TO_COUNTRY
+TO_COUNTRY_NAME
+TO_GENDER
+TO_LANG	  
+
+---------------------------------------------------------------------------------
+# SERVER - APP_REQUEST
+---------------------------------------------------------------------------------
+
+REQ_ID
+REQ_INIT_TIME
+REQ_APP_ID
+REQ_COUNTRY
+REQ_COUNTRY_NAME
+REQ_GENDER
+REQ_LANG
+REQ_TEXT
+
+---------------------------------------------------------------------------------
+# APP - ShardPreference
+---------------------------------------------------------------------------------
 
 APP_ID
 APP_KEY
 APP_NUMBER
+APP_PHONE
 APP_VER
-
 COUNTRY
+COUNTRY_NAME
 GENDER
 LANG
-
+NOTICE_NUMBER
+SET_ALARM_YN
 SET_BYE_CONFIRM_YN
 SET_NEW_RECEIVE_YN
 SET_SEND_COUNTRY
@@ -102,33 +121,35 @@ SET_SOUND_YN
 SET_VIBRATION_YN
 
 ---------------------------------------------------------------------------------
-
-0. Common Utils
-
-1. SharedPreferences  User Info Setting
-
-2. Network Connect (Retrofit - Http)
-
-3. FCM Connect (Push)
-
-4. Android ORM (Room - SQLite CRUD)
-
-5. ListView (Customer ListView - Chat Style)
-
-6. Toast
-
-7. Word wide service
-
-8. Voice
-
-9. Image
-
+# APP - APP_TALK_MAIN
 ---------------------------------------------------------------------------------
 
-x. Android Design
-
-x. Android Layout
-
-x. Google Ads
+ATX_ID
+ATX_INIT_TIME
+ATX_STATUS
+FROM_APP_ID
+FROM_APP_KEY
+FROM_COUNTRY
+FROM_COUNTRY_NAME
+FROM_GENDER
+FROM_LANG
+TO_APP_ID		  
+TO_APP_KEY
+TO_COUNTRY
+TO_COUNTRY_NAME
+TO_GENDER
+TO_LANG
 
 ---------------------------------------------------------------------------------
+# SERVER - APP_TALK_THREAD
+---------------------------------------------------------------------------------
+
+ATX_ID
+TALK_ACCESS_TIME
+TALK_APP_ID
+TALK_ID
+TALK_COUNTRY
+TALK_COUNTRY_NAME
+TALK_GENDER
+TALK_TEXT
+TALK_TYPE

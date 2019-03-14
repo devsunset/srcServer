@@ -19,17 +19,16 @@
 // LOG PRINT FLAG
 const LOG_FLAG = true;
 
-
 // [START import]
-      // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
-      const functions = require('firebase-functions');
+// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+const functions = require('firebase-functions');
 
-      // The Firebase Admin SDK to access the Firebase Realtime Database.
-      const admin = require('firebase-admin');
-      admin.initializeApp();
+// The Firebase Admin SDK to access the Firebase Realtime Database.
+const admin = require('firebase-admin');
+admin.initializeApp();
 
-      // Get the `FieldValue` object
-      var FieldValue = require('firebase-admin').firestore.FieldValue;
+// Get the `FieldValue` object
+var FieldValue = require('firebase-admin').firestore.FieldValue;
 // [END import]
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +75,11 @@ function setResult(call_function,result_code,result_message,result_data){
   }
   return JSON.parse(JSON.stringify(result));
 }
+
 //////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+### Sample Process Functions && Cloud Filestore sample ###
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -95,15 +98,13 @@ exports.sample = functions.https.onRequest((req, res) => {
     </body>
   </html>`);
 });
-//////////////////////////////////////////////////////////////////////////////////////
-
-// Sample Process Functions
 
 // Create Sample Functions
 exports.create = functions.https.onRequest(async (req, res) => {    
   var params = getParamsObj(req);
   console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
-    
+  
+  params.APP_STATUS = "A";  
   params.X_BLACK_LIST_COUNT = "0";
   params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
@@ -114,7 +115,7 @@ exports.create = functions.https.onRequest(async (req, res) => {
     console.error(err);
     res.json(setResult("create","E",err.stack,``));       
   }
- });
+});
 
  // Read Sample Functions (To-Do)
 exports.read = functions.https.onRequest(async (req, res) => {    
@@ -137,7 +138,7 @@ exports.read = functions.https.onRequest(async (req, res) => {
     });
   
   res.json(setResult("read","S","",listData));    
- });
+});
 
  // Update Sample Functions
 exports.update = functions.https.onRequest(async (req, res) => {    
@@ -153,6 +154,7 @@ exports.update = functions.https.onRequest(async (req, res) => {
           ,COUNTRY : params.COUNTRY
           ,GENDER : params.GENDER
           ,LANG : params.LANG
+          ,NOTICE_NUMBER : params.NOTICE_NUMBER
           ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
           ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
           ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
@@ -169,7 +171,7 @@ exports.update = functions.https.onRequest(async (req, res) => {
     console.error(err);
     res.json(setResult("update","E",err.stack,``));      
   }       
- });
+});
 
  // Delete Sample Functions
 exports.delete = functions.https.onRequest(async (req, res) => {    
@@ -183,71 +185,95 @@ exports.delete = functions.https.onRequest(async (req, res) => {
     console.error(err);
     res.json(setResult("delete","E",err.stack,``));      
   }      
- });
-
-/* 
-### Cloud Filestore sample ###
+});
 
 // [START addMessage]
 // Take the text parameter passed to this HTTP endpoint and insert it into the
 // Realtime Database under the path /messages/:documentId/original
 // [START addMessageTrigger]
 exports.addMessage = functions.https.onRequest(async (req, res) => {
-  // [END addMessageTrigger]
-    // Grab the text parameter.
-    const original = req.query.text;
-    // [START adminSdkAdd]
-    // Push the new message into the Realtime Database using the Firebase Admin SDK.
-    const writeResult = await admin.firestore().collection('messages').add({original: original});
-    // Send back a message that we've succesfully written the message
-    res.json({result: `Message with ID: ${writeResult.id} added.`});
-    // [END adminSdkAdd]
-  });
-  // [END addMessage]
+// [END addMessageTrigger]
+// Grab the text parameter.
+const original = req.query.text;
+// [START adminSdkAdd]
+// Push the new message into the Realtime Database using the Firebase Admin SDK.
+const writeResult = await admin.firestore().collection('messages').add({original: original});
+// Send back a message that we've succesfully written the message
+res.json({result: `Message with ID: ${writeResult.id} added.`});
+// [END adminSdkAdd]
+});
+// [END addMessage]
   
-  // [START makeUppercase]
-  // Listens for new messages added to /messages/:documentId/original and creates an
-  // uppercase version of the message to /messages/:documentId/uppercase
-  // [START makeUppercaseTrigger]
-  exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
-      .onCreate((snap, context) => {
-  // [END makeUppercaseTrigger]
-        // [START makeUppercaseBody]
-        // Grab the current value of what was written to the Realtime Database.
-        const original = snap.data().original;
-        console.log('Uppercasing', context.params.documentId, original);
-        const uppercase = original.toUpperCase();
-        // You must return a Promise when performing asynchronous tasks inside a Functions such as
-        // writing to the Firebase Realtime Database.
-        // Setting an 'uppercase' sibling in the Realtime Database returns a Promise.
-        return snap.ref.set({uppercase}, {merge: true});
-        // [END makeUppercaseBody]
-      });
-  // [END makeUppercase]
-  // [END all]
-  */  
+// [START makeUppercase]
+// Listens for new messages added to /messages/:documentId/original and creates an
+// uppercase version of the message to /messages/:documentId/uppercase
+// [START makeUppercaseTrigger]
+exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
+  .onCreate((snap, context) => {
+// [END makeUppercaseTrigger]
+	// [START makeUppercaseBody]
+	// Grab the current value of what was written to the Realtime Database.
+	const original = snap.data().original;
+	console.log('Uppercasing', context.params.documentId, original);
+	const uppercase = original.toUpperCase();
+	// You must return a Promise when performing asynchronous tasks inside a Functions such as
+	// writing to the Firebase Realtime Database.
+	// Setting an 'uppercase' sibling in the Realtime Database returns a Promise.
+	return snap.ref.set({uppercase}, {merge: true});
+	// [END makeUppercaseBody]
+  });
+// [END makeUppercase]
+// [END all]
+*/  
 
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Biz Logic Process Functions
 
-// App Info Init
-exports.appInfoInit = functions.https.onRequest(async (req, res) => { 
+ // App Notice
+exports.appNotice = functions.https.onRequest(async (req, res) => { 
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
+      console.log('----------[[appNotice]]---------- : '+ JSON.stringify(params));      
    }  
-    params.X_BLACK_LIST_COUNT = "0";
-    params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
- 
-    try{
-      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
-      res.json(setResult("appInfoInit","S",`DOC ID: ${params.APP_ID} created.`,''));   
-    }catch(err){
-      console.error(err);
-      res.json(setResult("appInfoInit","E",err.stack,``));       
-    }
-  });
+   
+  var listData = new Array();
+  
+  var dataRef = admin.firestore().collection('APP_NOTICE');
+
+  await dataRef.limitToLast(1).get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {                
+        listData.push(doc.data());
+      });
+    })
+    .catch(err => {     
+      console.log('Error getting documents', err);      
+      res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));    
+    });
+  
+   res.json(setResult("appNotice","S","",listData));  
+});
+
+// App Info Init
+exports.appInfoInit = functions.https.onRequest(async (req, res) => { 
+	if(LOG_FLAG){
+	  var params = getParamsObj(req);
+	  console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
+	}  
+
+	params.APP_STATUS = "A";  
+	params.X_BLACK_LIST_COUNT = "0";
+	params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+
+	try{
+	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
+	  res.json(setResult("appInfoInit","S",`DOC ID: ${params.APP_ID} created.`,''));   
+	}catch(err){
+	  console.error(err);
+	  res.json(setResult("appInfoInit","E",err.stack,``));       
+	}
+});
 
 // App Info Update
 exports.appInfoUpdate = functions.https.onRequest(async (req, res) => { 
@@ -265,6 +291,7 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
         ,COUNTRY : params.COUNTRY
         ,GENDER : params.GENDER
         ,LANG : params.LANG
+        ,NOTICE_NUMBER : params.NOTICE_NUMBER
         ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
         ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
         ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
@@ -281,30 +308,116 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
     console.error(err);
     res.json(setResult("appInfoUpdate","E",err.stack,``));    
   }
- });
+});
 
-// App Info Read
- exports.appInfoRead = functions.https.onRequest(async (req, res) => {    
-  var params = getParamsObj(req);
-  console.log('----------[[appInfoRead]]---------- : '+ JSON.stringify(params));    
+// App Info Check
+exports.appInfoCheck = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[appInfoCheck]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("appInfoCheck","S",`To-Do`,''));   
+});
 
-  var listData = new Array();
-  
-  var dataRef = admin.firestore().collection('APP_USERS');
+// Send Message
+exports.sendMessage = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));      
+   }  
+   
+   /*
+    // Create a notification
+    const payload = {
+        notification: {
+            title:'PUSH TITLE',
+            body: 'PUSH CONTENT',
+            sound: "default"
+        },
+    };
 
-  await dataRef.where('APP_VER', '==', params.APP_VER).get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {                
-        listData.push(doc.data());
-      });
-    })
-    .catch(err => {     
-      console.log('Error getting documents', err);      
-      res.json(setResult("appInfoRead","E",'Error getting documents : '+err.stack,''));    
-    });
-  
-  res.json(setResult("appInfoRead","S","",listData));    
- });
+    // Create an options object that contains the time to live for the notification and the priority
+    const options = {
+        priority: "high",
+        timeToLive: 60 * 60 * 24
+    };
 
+    return admin.messaging().sendToTopic("pushNotifications", payload, options);
+   */
+
+   res.json(setResult("sendMessage","S",`To-Do`,''));   
+});
+
+// Reply Message
+exports.replyMessage = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[replyMessage]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("replyMessage","S",`To-Do`,''));   
+});
+
+// Good Bye Message
+exports.goodbyeMessage = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("goodbyeMessage","S",`To-Do`,''));   
+});
+
+// Retry Message
+exports.retryMessage = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[retryMessage]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("retryMessage","S",`To-Do`,''));   
+});
+
+// Get Image Data
+exports.getImageData = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[getImageData]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("getImageData","S",`To-Do`,''));   
+});
+
+// Get Voice Data
+exports.getVoiceData = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[getVoiceData]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("getVoiceData","S",`To-Do`,''));   
+});
+
+// Request Black List
+exports.requstBlackList = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("requstBlackList","S",`To-Do`,''));   
+});
+
+// Request Voc
+exports.requestVoc = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("requestVoc","S",`To-Do`,''));   
+});
+
+// Error Stack Trace
+exports.errorStackTrace = functions.https.onRequest(async (req, res) => { 
+   if(LOG_FLAG){
+      var params = getParamsObj(req);
+      console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));      
+   }  
+   res.json(setResult("errorStackTrace","S",`To-Do`,''));   
+});
 
 //////////////////////////////////////////////////////////////////////////////////////

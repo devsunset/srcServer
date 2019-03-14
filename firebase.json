@@ -2,15 +2,19 @@
   "hosting": {
     "public": "public",
     "rewrites": [ 
-       {"source": "/helloWorld", "function": "helloWorld"}
-      ,{"source": "/sample", "function": "sample"}
-      ,{"source": "/create", "function": "create"}
-      ,{"source": "/read", "function": "read"}
-      ,{"source": "/update", "function": "update"}
-      ,{"source": "/delete", "function": "delete"}
+       {"source": "/appNotice", "function": "appNotice"}
       ,{"source": "/appInfoInit", "function": "appInfoInit"}
-      ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}
-      ,{"source": "/appInfoRead", "function": "appInfoRead"}
+      ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}  
+      ,{"source": "/appInfoCheck", "function": "appInfoCheck"}
+      ,{"source": "/sendMessage", "function": "sendMessage"}
+      ,{"source": "/replyMessage", "function": "replyMessage"}
+      ,{"source": "/retryMessage", "function": "retryMessage"}
+      ,{"source": "/goodbyeMessage", "function": "goodbyeMessage"}
+      ,{"source": "/getImageData", "function": "getImageData"}
+      ,{"source": "/getVoiceData", "function": "getVoiceData"}
+      ,{"source": "/requstBlackList", "function": "requstBlackList"}
+      ,{"source": "/requestVoc", "function": "requestVoc"}
+      ,{"source": "/errorStackTrace", "function": "errorStackTrace"}
      ],
     "ignore": [
       "firebase.json",
