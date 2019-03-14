@@ -325,15 +325,24 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));      
    }  
-   
-   /*
-    // Create a notification
+    
+    //Build the message payload and send the message
+    /*
+    const payload = {
+      data: {
+        data_type: "direct_message",
+        title: "___title___ ",
+        message: '___message___',
+        message_id: '___message_id___',
+      }
+    };
+    */    
     const payload = {
         notification: {
-            title:'PUSH TITLE',
-            body: 'PUSH CONTENT',
-            sound: "default"
-        },
+              title:'___title___',
+              body: '___body___',
+              sound: "default"
+        }
     };
 
     // Create an options object that contains the time to live for the notification and the priority
@@ -341,11 +350,16 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         priority: "high",
         timeToLive: 60 * 60 * 24
     };
-
-    return admin.messaging().sendToTopic("pushNotifications", payload, options);
-   */
-
-   res.json(setResult("sendMessage","S",`To-Do`,''));   
+    
+    await admin.messaging().sendToDevice(params.APP_KEY, payload,options)
+      .then(function(response) {
+            console.log("Successfully sent message:", response);
+        })
+        .catch(function(error) {
+            console.log("Error sending message:", error);
+        });
+ 
+    res.json(setResult("sendMessage","S","To-Do",''));  
 });
 
 // Reply Message
