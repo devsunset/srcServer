@@ -241,7 +241,7 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
   
   var dataRef = admin.firestore().collection('APP_NOTICE');
 
-  await dataRef.limitToLast(1).get()
+  await dataRef.where('NOTICE_STATUS', '==', 'P').get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -251,7 +251,7 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
       console.log('Error getting documents', err);      
       res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));    
     });
-  
+
    res.json(setResult("appNotice","S","",listData));  
 });
 
