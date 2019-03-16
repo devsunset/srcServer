@@ -320,27 +320,42 @@ exports.appInfoCheck = functions.https.onRequest(async (req, res) => {
 });
 
 // Send Message
-exports.sendMessage = functions.https.onRequest(async (req, res) => { 
+exports.sendMessage = functions.https.onRequest((req, res) => { 
    if(LOG_FLAG){
       var params = getParamsObj(req);
       console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));      
    }  
     
     //Build the message payload and send the message
-    /*
-    const payload = {
+    /*const payload = {
       data: {
-        data_type: "direct_message",
-        title: "___title___ ",
-        message: '___message___',
-        message_id: '___message_id___',
+        data_type: "direct_message",        
+        title: 'Received Message',
+        ATX_ID: 'ATX_ID',
+        ATX_INIT_TIME: 'ATX_INIT_TIME',
+        ATX_LOCAL_TIME: 'ATX_LOCAL_TIME',
+        ATX_STATUS: 'I',
+        FROM_APP_ID: params.APP_ID,
+        FROM_APP_KEY:  params.APP_KEY,
+        FROM_COUNTRY:  params.COUNTRY,
+        FROM_COUNTRY_NAME:  params.COUNTRY_NAME,
+        FROM_GENDER:  params.GENDER,
+        FROM_LANG:  params.LANG,
+        LAST_TALK_TEXT: 'LAST_TALK_TEXT',
+        LAST_TALK_TRANS_TEXT: 'LAST_TALK_TRANS_TEXT',
+        TO_APP_ID: 'FROM_APP_ID',
+        TO_APP_KEY: 'FROM_APP_KEY',
+        TO_COUNTRY: 'FROM_COUNTRY',
+        TO_COUNTRY_NAME: 'FROM_COUNTRY_NAME',
+        TO_GENDER: 'FROM_GENDER',
+        TO_LANG: 'FROM_LANG',
       }
-    };
-    */    
+    };*/
+
     const payload = {
         notification: {
-              title:'___title___',
-              body: '___body___',
+              title:'Received Message',
+              body: '^^',
               sound: "default"
         }
     };
@@ -351,15 +366,17 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         timeToLive: 60 * 60 * 24
     };
     
-    await admin.messaging().sendToDevice(params.APP_KEY, payload,options)
+    var result = "";
+    admin.messaging().sendToDevice(params.APP_KEY, payload,options)
       .then(function(response) {
+            result = response;
             console.log("Successfully sent message:", response);
         })
         .catch(function(error) {
             console.log("Error sending message:", error);
         });
  
-    res.json(setResult("sendMessage","S","To-Do",''));  
+    res.json(setResult("sendMessage","S",result,''));  
 });
 
 // Reply Message
