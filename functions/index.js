@@ -400,7 +400,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           await admin.messaging().sendToDevice(listData[0].APP_KEY, payload,options)
           .then(function(response) {
                 console.log("Successfully sent message:", response);
-                res.json(setResult("sendMessage","S",response,''));  
+                res.json(setResult("sendMessage","S",'',''));  
             })
             .catch(function(error) {
               console.log("Error sending message:", error);
