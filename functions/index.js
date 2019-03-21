@@ -68,6 +68,7 @@ function setResult(call_function,result_code,result_message,result_data){
   if(result_data ==''){
     var listData = new Array();
     var temp = new Object();
+    temp.EMPTY_DATA='Y';
     listData.push(temp);
     result.RESULT_DATA = listData;	
   }else{
@@ -241,7 +242,7 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
   
   var dataRef = admin.firestore().collection('APP_NOTICE');
 
-  await dataRef.where('NOTICE_STATUS', '==', 'P').get()
+  await dataRef.where('NOTICE_STATUS', '==', 'A').get()
     .then(snapshot => {
       snapshot.forEach(doc => {                
         listData.push(doc.data());
@@ -251,6 +252,16 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
       console.log('Error getting documents', err);      
       res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));    
     });
+
+  try{
+      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
+        { 
+          Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+        }
+      );      
+    }catch(err){
+      console.error(err);      
+    }
 
    res.json(setResult("appNotice","S","",listData));  
 });
@@ -320,63 +331,86 @@ exports.appInfoCheck = functions.https.onRequest(async (req, res) => {
 });
 
 // Send Message
-exports.sendMessage = functions.https.onRequest((req, res) => { 
+exports.sendMessage = functions.https.onRequest(async (req, res) => { 
    if(LOG_FLAG){
       var params = getParamsObj(req);
       console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));      
    }  
-    
-    //Build the message payload and send the message
-    /*const payload = {
-      data: {
-        data_type: "direct_message",        
-        title: 'Received Message',
-        ATX_ID: 'ATX_ID',
-        ATX_INIT_TIME: 'ATX_INIT_TIME',
-        ATX_LOCAL_TIME: 'ATX_LOCAL_TIME',
-        ATX_STATUS: 'I',
-        FROM_APP_ID: params.APP_ID,
-        FROM_APP_KEY:  params.APP_KEY,
-        FROM_COUNTRY:  params.COUNTRY,
-        FROM_COUNTRY_NAME:  params.COUNTRY_NAME,
-        FROM_GENDER:  params.GENDER,
-        FROM_LANG:  params.LANG,
-        LAST_TALK_TEXT: 'LAST_TALK_TEXT',
-        LAST_TALK_TRANS_TEXT: 'LAST_TALK_TRANS_TEXT',
-        TO_APP_ID: 'FROM_APP_ID',
-        TO_APP_KEY: 'FROM_APP_KEY',
-        TO_COUNTRY: 'FROM_COUNTRY',
-        TO_COUNTRY_NAME: 'FROM_COUNTRY_NAME',
-        TO_GENDER: 'FROM_GENDER',
-        TO_LANG: 'FROM_LANG',
-      }
-    };*/
-
-    const payload = {
-        notification: {
-              title:'Received Message',
-              body: '^^',
-              sound: "default"
-        }
-    };
-
-    // Create an options object that contains the time to live for the notification and the priority
-    const options = {
-        priority: "high",
-        timeToLive: 60 * 60 * 24
-    };
-    
-    var result = "";
-    admin.messaging().sendToDevice(params.APP_KEY, payload,options)
-      .then(function(response) {
-            result = response;
-            console.log("Successfully sent message:", response);
-        })
-        .catch(function(error) {
-            console.log("Error sending message:", error);
-        });
  
-    res.json(setResult("sendMessage","S",result,''));  
+    var listData = new Array();
+
+    var dataRef = admin.firestore().collection('APP_USERS');
+
+    await dataRef.where('APP_STATUS', '==', 'A').get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {                
+          listData.push(doc.data());
+        });
+      })
+      .catch(err => {     
+        console.log('Error getting documents', err);      
+      });
+  
+     if(listData.length > 0 ){
+         //Build the message payload and send the message
+          var payload = {
+            notification: {
+              title: 'Received Message',
+              body: '^___^'
+            },
+            data: {
+              ATX_ID: params.ATX_ID,
+              ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME+"",
+              ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
+              ATX_STATUS: params.ATX_STATUS,
+              FROM_APP_ID: params.FROM_APP_ID,
+              FROM_APP_KEY:  params.FROM_APP_KEY,
+              FROM_COUNTRY:  params.FROM_COUNTRY,
+              FROM_COUNTRY_NAME:  params.FROM_COUNTRY_NAME,
+              FROM_GENDER:  params.FROM_GENDER,
+              FROM_LANG:  params.FROM_LANG,
+              LAST_TALK_TEXT: params.LAST_TALK_TEXT,        
+              LAST_TALK_TEXT_IMAGE: '',
+              LAST_TALK_TEXT_VOICE: '',
+              TALK_TYPE: params.TALK_TYPE,
+              TO_APP_ID: listData[0].APP_ID,
+              TO_APP_KEY: listData[0].APP_KEY,
+              TO_COUNTRY: listData[0].COUNTRY,
+              TO_COUNTRY_NAME: listData[0].COUNTRY_NAME,
+              TO_GENDER: listData[0].GENDER,
+              TO_LANG: listData[0].LANG,
+            }
+          };
+
+          // Create an options object that contains the time to live for the notification and the priority
+          const options = {
+              priority: "high",
+              timeToLive: 60 * 60 * 24
+          };
+            
+          // FROM
+          await admin.messaging().sendToDevice(params.FROM_APP_KEY, payload,options)
+            .then(function(response) {  
+                  console.log("Successfully sent message:", response);
+              })
+              .catch(function(error) {
+                  console.log("Error sending message:", error);
+              });  
+          
+          // TO
+          await admin.messaging().sendToDevice(listData[0].APP_KEY, payload,options)
+          .then(function(response) {
+                console.log("Successfully sent message:", response);
+                res.json(setResult("sendMessage","S",response,''));  
+            })
+            .catch(function(error) {
+              console.log("Error sending message:", error);
+              res.json(setResult("sendMessage","E",error,''));  
+            });  
+     }else{
+        res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));  
+     }   
+
 });
 
 // Reply Message
