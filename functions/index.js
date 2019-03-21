@@ -360,7 +360,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
             },
             data: {
               ATX_ID: params.ATX_ID,
-              ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME+"",
               ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
               ATX_STATUS: params.ATX_STATUS,
               FROM_APP_ID: params.FROM_APP_ID,

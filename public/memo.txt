@@ -133,7 +133,6 @@ SET_VIBRATION_YN
 ---------------------------------------------------------------------------------
 
 ATX_ID
-ATX_INIT_TIME
 ATX_LOCAL_TIME
 ATX_STATUS
 FROM_APP_ID
@@ -158,7 +157,6 @@ TO_LANG
 ---------------------------------------------------------------------------------
 
 ATX_ID
-TALK_ACCESS_TIME
 TALK_ACCESS_LOCAL_TIME
 TALK_APP_ID
 TALK_ID
