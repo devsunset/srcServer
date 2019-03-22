@@ -79,156 +79,6 @@ function setResult(call_function,result_code,result_message,result_data){
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-/* 
-### Sample Process Functions && Cloud Filestore sample ###
-
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
-exports.helloWorld = functions.https.onRequest((request, response) => {
- response.send("Hello World!");
-});
-
-// Sample functions
-exports.sample = functions.https.onRequest((req, res) => {
-  res.status(200).send(`<!doctype html>
-    <head>
-      <title>Simple Random Chat</title>
-    </head>
-    <body>
-      Simple Random Chat 
-    </body>
-  </html>`);
-});
-
-// Create Sample Functions
-exports.create = functions.https.onRequest(async (req, res) => {    
-  var params = getParamsObj(req);
-  console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
-  
-  params.APP_STATUS = "A";  
-  params.X_BLACK_LIST_COUNT = "0";
-  params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);     
-    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));   
-  }catch(err){
-    console.error(err);
-    res.json(setResult("create","E",err.stack,``));       
-  }
-});
-
- // Read Sample Functions (To-Do)
-exports.read = functions.https.onRequest(async (req, res) => {    
-  var params = getParamsObj(req);
-  console.log('----------[[read]]---------- : '+ JSON.stringify(params));    
-
-  var listData = new Array();
-  
-  var dataRef = admin.firestore().collection('SAMPLE');
-
-  await dataRef.where('APP_VER', '==', params.APP_VER).get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {                
-        listData.push(doc.data());
-      });
-    })
-    .catch(err => {     
-      console.log('Error getting documents', err);      
-      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));    
-    });
-  
-  res.json(setResult("read","S","",listData));    
-});
-
- // Update Sample Functions
-exports.update = functions.https.onRequest(async (req, res) => {    
-   var params = getParamsObj(req);
-   console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(    
-         { 
-           APP_KEY : params.APP_KEY
-          ,APP_NUMBER : params.APP_NUMBER
-          ,APP_VER : params.APP_VER
-          ,COUNTRY : params.COUNTRY
-          ,GENDER : params.GENDER
-          ,LANG : params.LANG
-          ,NOTICE_NUMBER : params.NOTICE_NUMBER
-          ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
-          ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
-          ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
-          ,SET_SEND_GENDER : params.SET_SEND_GENDER
-          ,SET_SEND_LIST_HIDE_YN : params.SET_SEND_LIST_HIDE_YN
-          ,SET_SOUND_YN : params.SET_SOUND_YN
-          ,SET_SOUND_YN : params.SET_SOUND_YN
-          ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
-          ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
-         }
-      );
-    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
-  }catch(err){
-    console.error(err);
-    res.json(setResult("update","E",err.stack,``));      
-  }       
-});
-
- // Delete Sample Functions
-exports.delete = functions.https.onRequest(async (req, res) => {    
-  var params = getParamsObj(req);
-  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));  
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
-    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``)); 
-  }catch(err){
-    console.error(err);
-    res.json(setResult("delete","E",err.stack,``));      
-  }      
-});
-
-// [START addMessage]
-// Take the text parameter passed to this HTTP endpoint and insert it into the
-// Realtime Database under the path /messages/:documentId/original
-// [START addMessageTrigger]
-exports.addMessage = functions.https.onRequest(async (req, res) => {
-// [END addMessageTrigger]
-// Grab the text parameter.
-const original = req.query.text;
-// [START adminSdkAdd]
-// Push the new message into the Realtime Database using the Firebase Admin SDK.
-const writeResult = await admin.firestore().collection('messages').add({original: original});
-// Send back a message that we've succesfully written the message
-res.json({result: `Message with ID: ${writeResult.id} added.`});
-// [END adminSdkAdd]
-});
-// [END addMessage]
-  
-// [START makeUppercase]
-// Listens for new messages added to /messages/:documentId/original and creates an
-// uppercase version of the message to /messages/:documentId/uppercase
-// [START makeUppercaseTrigger]
-exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
-  .onCreate((snap, context) => {
-// [END makeUppercaseTrigger]
-	// [START makeUppercaseBody]
-	// Grab the current value of what was written to the Realtime Database.
-	const original = snap.data().original;
-	console.log('Uppercasing', context.params.documentId, original);
-	const uppercase = original.toUpperCase();
-	// You must return a Promise when performing asynchronous tasks inside a Functions such as
-	// writing to the Firebase Realtime Database.
-	// Setting an 'uppercase' sibling in the Realtime Database returns a Promise.
-	return snap.ref.set({uppercase}, {merge: true});
-	// [END makeUppercaseBody]
-  });
-// [END makeUppercase]
-// [END all]
-*/  
-
-//////////////////////////////////////////////////////////////////////////////////////
-
 // Biz Logic Process Functions
 
  // App Notice
@@ -298,19 +148,22 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
       { 
          APP_KEY : params.APP_KEY
         ,APP_NUMBER : params.APP_NUMBER
+        ,APP_PHONE : params.APP_PHONE
         ,APP_VER : params.APP_VER
         ,COUNTRY : params.COUNTRY
+        ,COUNTRY_NAME : params.COUNTRY_NAME
         ,GENDER : params.GENDER
-        ,LANG : params.LANG
-        ,NOTICE_NUMBER : params.NOTICE_NUMBER
+        ,LANG : params.LANG        
+        ,SET_ALARM_YN : params.SET_ALARM_YN
+        ,SET_ALARM_NOTI_YN : params.SET_ALARM_NOTI_YN
+        ,SET_ALARM_POPUP_YN : params.SET_ALARM_POPUP_YN
         ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
+        ,SET_LOCK_PWD : params.SET_LOCK_PWD
+        ,SET_LOCK_YN : params.SET_LOCK_YN
         ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
         ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
         ,SET_SEND_GENDER : params.SET_SEND_GENDER
         ,SET_SEND_LIST_HIDE_YN : params.SET_SEND_LIST_HIDE_YN
-        ,SET_SOUND_YN : params.SET_SOUND_YN
-        ,SET_SOUND_YN : params.SET_SOUND_YN
-        ,SET_VIBRATION_YN : params.SET_VIBRATION_YN
         ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
       }
     );
@@ -368,9 +221,8 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_COUNTRY_NAME:  params.FROM_COUNTRY_NAME,
               FROM_GENDER:  params.FROM_GENDER,
               FROM_LANG:  params.FROM_LANG,
-              LAST_TALK_TEXT: params.LAST_TALK_TEXT,        
-              LAST_TALK_TEXT_IMAGE: '',
-              LAST_TALK_TEXT_VOICE: '',
+              LAST_TALK_TEXT: params.LAST_TALK_TEXT,     
+              TALK_ID: params.TALK_ID,   
               TALK_TYPE: params.TALK_TYPE,
               TO_APP_ID: listData[0].APP_ID,
               TO_APP_KEY: listData[0].APP_KEY,
@@ -483,5 +335,143 @@ exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
    }  
    res.json(setResult("errorStackTrace","S",`To-Do`,''));   
 });
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+### Sample Process Functions && Cloud Filestore sample ###
+
+// Create and Deploy Your First Cloud Functions
+// https://firebase.google.com/docs/functions/write-firebase-functions
+exports.helloWorld = functions.https.onRequest((request, response) => {
+ response.send("Hello World!");
+});
+
+// Sample functions
+exports.sample = functions.https.onRequest((req, res) => {
+  res.status(200).send(`<!doctype html>
+    <head>
+      <title>Simple Random Chat</title>
+    </head>
+    <body>
+      Simple Random Chat 
+    </body>
+  </html>`);
+});
+
+// Create Sample Functions
+exports.create = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
+  
+  params.APP_STATUS = "A";  
+  params.X_BLACK_LIST_COUNT = "0";
+  params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);     
+    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));   
+  }catch(err){
+    console.error(err);
+    res.json(setResult("create","E",err.stack,``));       
+  }
+});
+
+ // Read Sample Functions (To-Do)
+exports.read = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[read]]---------- : '+ JSON.stringify(params));    
+
+  var listData = new Array();
+  
+  var dataRef = admin.firestore().collection('SAMPLE');
+
+  await dataRef.where('APP_VER', '==', params.APP_VER).get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {                
+        listData.push(doc.data());
+      });
+    })
+    .catch(err => {     
+      console.log('Error getting documents', err);      
+      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));    
+    });
+  
+  res.json(setResult("read","S","",listData));    
+});
+
+ // Update Sample Functions
+exports.update = functions.https.onRequest(async (req, res) => {    
+   var params = getParamsObj(req);
+   console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
+
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(    
+         { 
+           APP_KEY : params.APP_KEY
+          ,APP_NUMBER : params.APP_NUMBER
+          ,APP_VER : params.APP_VER
+          ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+         }
+      );
+    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
+  }catch(err){
+    console.error(err);
+    res.json(setResult("update","E",err.stack,``));      
+  }       
+});
+
+ // Delete Sample Functions
+exports.delete = functions.https.onRequest(async (req, res) => {    
+  var params = getParamsObj(req);
+  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));  
+
+  try{
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
+    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``)); 
+  }catch(err){
+    console.error(err);
+    res.json(setResult("delete","E",err.stack,``));      
+  }      
+});
+
+// [START addMessage]
+// Take the text parameter passed to this HTTP endpoint and insert it into the
+// Realtime Database under the path /messages/:documentId/original
+// [START addMessageTrigger]
+exports.addMessage = functions.https.onRequest(async (req, res) => {
+// [END addMessageTrigger]
+// Grab the text parameter.
+const original = req.query.text;
+// [START adminSdkAdd]
+// Push the new message into the Realtime Database using the Firebase Admin SDK.
+const writeResult = await admin.firestore().collection('messages').add({original: original});
+// Send back a message that we've succesfully written the message
+res.json({result: `Message with ID: ${writeResult.id} added.`});
+// [END adminSdkAdd]
+});
+// [END addMessage]
+  
+// [START makeUppercase]
+// Listens for new messages added to /messages/:documentId/original and creates an
+// uppercase version of the message to /messages/:documentId/uppercase
+// [START makeUppercaseTrigger]
+exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
+  .onCreate((snap, context) => {
+// [END makeUppercaseTrigger]
+	// [START makeUppercaseBody]
+	// Grab the current value of what was written to the Realtime Database.
+	const original = snap.data().original;
+	console.log('Uppercasing', context.params.documentId, original);
+	const uppercase = original.toUpperCase();
+	// You must return a Promise when performing asynchronous tasks inside a Functions such as
+	// writing to the Firebase Realtime Database.
+	// Setting an 'uppercase' sibling in the Realtime Database returns a Promise.
+	return snap.ref.set({uppercase}, {merge: true});
+	// [END makeUppercaseBody]
+  });
+// [END makeUppercase]
+// [END all]
+*/  
 
 //////////////////////////////////////////////////////////////////////////////////////
