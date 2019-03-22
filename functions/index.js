@@ -183,6 +183,10 @@ exports.appInfoCheck = functions.https.onRequest(async (req, res) => {
    res.json(setResult("appInfoCheck","S",`To-Do`,''));   
 });
 
+function getRandomInt(min, max) { //min ~ max 사이의 임의의 정수 반환
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 // Send Message
 exports.sendMessage = functions.https.onRequest(async (req, res) => { 
    if(LOG_FLAG){
@@ -194,10 +198,13 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
 
     var dataRef = admin.firestore().collection('APP_USERS');
 
+    //await dataRef.where('APP_STATUS', '==', 'A').orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
     await dataRef.where('APP_STATUS', '==', 'A').get()
       .then(snapshot => {
-        snapshot.forEach(doc => {                
-          listData.push(doc.data());
+        snapshot.forEach(doc => {       
+          if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_APP_KEY != doc.data().FROM_APP_KEY){
+              listData.push(doc.data());
+          }   
         });
       })
       .catch(err => {     
