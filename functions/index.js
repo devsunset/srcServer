@@ -356,7 +356,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           var payload = {
             notification: {
               title: 'Received Message',
-              body: '^___^'
+              body: ''
             },
             data: {
               ATX_ID: params.ATX_ID,
@@ -377,7 +377,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               TO_COUNTRY: listData[0].COUNTRY,
               TO_COUNTRY_NAME: listData[0].COUNTRY_NAME,
               TO_GENDER: listData[0].GENDER,
-              TO_LANG: listData[0].LANG,
+              TO_LANG: listData[0].LANG
             }
           };
 
