@@ -5,7 +5,6 @@
        {"source": "/appNotice", "function": "appNotice"}
       ,{"source": "/appInfoInit", "function": "appInfoInit"}
       ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}  
-      ,{"source": "/appInfoCheck", "function": "appInfoCheck"}
       ,{"source": "/sendMessage", "function": "sendMessage"}
       ,{"source": "/replyMessage", "function": "replyMessage"}
       ,{"source": "/retryMessage", "function": "retryMessage"}

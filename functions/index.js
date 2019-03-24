@@ -142,12 +142,23 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
      var params = getParamsObj(req);
      console.log('----------[[appInfoUpdate]]---------- : '+ JSON.stringify(params));      
   }  
+
+  params.APP_STATUS = "A";  
+  params.Z_LAST_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+
+  try{
+	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
+	  res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,''));   
+	}catch(err){
+	  console.error(err);
+	  res.json(setResult("appInfoUpdate","E",err.stack,``));       
+	}
   
+  /*
   try{
     await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
       { 
          APP_KEY : params.APP_KEY
-        ,APP_NUMBER : params.APP_NUMBER
         ,APP_PHONE : params.APP_PHONE
         ,APP_VER : params.APP_VER
         ,COUNTRY : params.COUNTRY
@@ -172,20 +183,8 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
     console.error(err);
     res.json(setResult("appInfoUpdate","E",err.stack,``));    
   }
+  */
 });
-
-// App Info Check
-exports.appInfoCheck = functions.https.onRequest(async (req, res) => { 
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[appInfoCheck]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("appInfoCheck","S",`To-Do`,''));   
-});
-
-function getRandomInt(min, max) { //min ~ max 사이의 임의의 정수 반환
-  return Math.floor(Math.random() * (max - min)) + min;
-}
 
 // Send Message
 exports.sendMessage = functions.https.onRequest(async (req, res) => { 
@@ -287,15 +286,6 @@ exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
       console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));      
    }  
    res.json(setResult("goodbyeMessage","S",`To-Do`,''));   
-});
-
-// Retry Message
-exports.retryMessage = functions.https.onRequest(async (req, res) => { 
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[retryMessage]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("retryMessage","S",`To-Do`,''));   
 });
 
 // Get Image Data
