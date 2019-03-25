@@ -33,6 +33,21 @@ X_BLACK_LIST_COUNT
 Z_INIT_ACCESS_TIME
 Z_LAST_ACCESS_TIME
 
+# 색인 1
+APP_STATUS 오름차순
+COUNTRY 오름차순
+SET_NEW_RECEIVE_YN 오름차순
+Z_LAST_ACCESS_TIME 내림차순
+
+# 색인 2
+APP_STATUS 오름차순
+SET_NEW_RECEIVE_YN 오름차순
+Z_LAST_ACCESS_TIME 내림차순
+
+# 색인 3
+GENDER 오름차순
+Z_LAST_ACCESS_TIME 내림차순
+
 ---------------------------------------------------------------------------------
 # SERVER - APP_TALK_MAIN
 ---------------------------------------------------------------------------------
@@ -46,7 +61,7 @@ FROM_COUNTRY
 FROM_COUNTRY_NAME
 FROM_GENDER
 FROM_LANG
-TO_APP_ID		  
+TO_APP_ID
 TO_APP_KEY
 TO_COUNTRY
 TO_COUNTRY_NAME
@@ -81,12 +96,12 @@ FROM_APP_ID
 FROM_COUNTRY
 FROM_COUNTRY_NAME
 FROM_GENDER
-FROM_LANG	  
-TO_APP_ID	
+FROM_LANG
+TO_APP_ID
 TO_COUNTRY
 TO_COUNTRY_NAME
 TO_GENDER
-TO_LANG	  
+TO_LANG
 
 ---------------------------------------------------------------------------------
 # SERVER - APP_REQUEST
@@ -140,7 +155,7 @@ FROM_LANG
 LAST_TALK_TEXT
 LAST_TALK_APP_ID
 TALK_TYPE
-TO_APP_ID		  
+TO_APP_ID
 TO_APP_KEY
 TO_COUNTRY
 TO_COUNTRY_NAME

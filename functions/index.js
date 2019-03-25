@@ -70,9 +70,9 @@ function setResult(call_function,result_code,result_message,result_data){
     var temp = new Object();
     temp.EMPTY_DATA='Y';
     listData.push(temp);
-    result.RESULT_DATA = listData;	
+    result.RESULT_DATA = listData;
   }else{
-    result.RESULT_DATA = result_data;	
+    result.RESULT_DATA = result_data;
   }
   return JSON.parse(JSON.stringify(result));
 }
@@ -82,110 +82,178 @@ function setResult(call_function,result_code,result_message,result_data){
 // Biz Logic Process Functions
 
  // App Notice
-exports.appNotice = functions.https.onRequest(async (req, res) => { 
+exports.appNotice = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[appNotice]]---------- : '+ JSON.stringify(params));      
-   }  
-   
+      console.log('----------[[appNotice]]---------- : '+ JSON.stringify(params));
+   }
+
   var listData = new Array();
-  
+
   var dataRef = admin.firestore().collection('APP_NOTICE');
 
   await dataRef.where('NOTICE_STATUS', '==', 'A').get()
     .then(snapshot => {
-      snapshot.forEach(doc => {                
+      snapshot.forEach(doc => {
         listData.push(doc.data());
       });
     })
-    .catch(err => {     
-      console.log('Error getting documents', err);      
-      res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));    
+    .catch(err => {
+      console.log('Error getting documents', err);
+      res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));
     });
 
   if("-" != params.APP_ID){
       try{
-        await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
-          { 
+        await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(
+          {
             Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
           }
-        );      
+        );
       }catch(err){
-        console.error(err);      
+        console.error(err);
       }
   }
-  res.json(setResult("appNotice","S","",listData));  
+  res.json(setResult("appNotice","S","",listData));
 });
 
 // App Info Init
-exports.appInfoInit = functions.https.onRequest(async (req, res) => { 
+exports.appInfoInit = functions.https.onRequest(async (req, res) => {
 	if(LOG_FLAG){
 	  var params = getParamsObj(req);
-	  console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));      
-	}  
+	  console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));
+	}
 
-	params.APP_STATUS = "A";  
+	params.APP_STATUS = "A";
 	params.X_BLACK_LIST_COUNT = "0";
 	params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
 	try{
-	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
-	  res.json(setResult("appInfoInit","S",`DOC ID: ${params.APP_ID} created.`,''));   
+	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);
+	  res.json(setResult("appInfoInit","S",`DOC ID: ${params.APP_ID} created.`,''));
 	}catch(err){
 	  console.error(err);
-	  res.json(setResult("appInfoInit","E",err.stack,``));       
+	  res.json(setResult("appInfoInit","E",err.stack,``));
 	}
 });
 
 // App Info Update
-exports.appInfoUpdate = functions.https.onRequest(async (req, res) => { 
+exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
   if(LOG_FLAG){
      var params = getParamsObj(req);
-     console.log('----------[[appInfoUpdate]]---------- : '+ JSON.stringify(params));      
-  }  
+     console.log('----------[[appInfoUpdate]]---------- : '+ JSON.stringify(params));
+  }
 
-  params.APP_STATUS = "A";  
+  params.APP_STATUS = "A";
   params.Z_LAST_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
   if("-" != params.APP_ID){
     try{
-      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
-      res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,''));   
+      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);
+      res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,''));
     }catch(err){
       console.error(err);
-      res.json(setResult("appInfoUpdate","E",err.stack,``));       
+      res.json(setResult("appInfoUpdate","E",err.stack,``));
     }
   }else{
-    res.json(setResult("appInfoUpdate","E","APP_ID - SKIP",``));       
-  }  
+    res.json(setResult("appInfoUpdate","E","APP_ID - SKIP",``));
+  }
 });
 
 // Send Message
-exports.sendMessage = functions.https.onRequest(async (req, res) => { 
+exports.sendMessage = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));      
-   }  
- 
+      console.log('----------[[sendMessage]]---------- : '+ JSON.stringify(params));
+   }
+
     var listData = new Array();
 
     var dataRef = admin.firestore().collection('APP_USERS');
 
-    //await dataRef.where('APP_STATUS', '==', 'A').orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
-    await dataRef.where('APP_STATUS', '==', 'A').get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {       
-          if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_APP_KEY != doc.data().FROM_APP_KEY){
-              listData.push(doc.data());
-          }   
-        });
-      })
-      .catch(err => {     
-        console.log('Error getting documents', err);      
-      });
-  
+    console.log('----------[[sendMessage]]---------- : 1 ');
+
+    // Gender ALL
+    if(params.SET_SEND_GENDER == "A"){
+
+      if(params.SET_SEND_COUNTRY == "L"){
+        console.log('----------[[SET_SEND_GENDER A : SET_SEND_COUNTRY L ]]---------- : 2 ');
+        // Local
+        await dataRef.where('APP_STATUS', '==', 'A')
+                     .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .where('COUNTRY', '==', params.COUNTRY)
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .then(snapshot => {
+                      snapshot.forEach(doc => {
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                            listData.push(doc.data());
+                        }
+                      });
+                    })
+                    .catch(err => {
+                      console.log('Error getting documents', err);
+                    });
+      }else{
+        console.log('----------[[SET_SEND_GENDER A : SET_SEND_COUNTRY W ]]---------- : 3 ');
+        // World
+        await dataRef.where('APP_STATUS', '==', 'A')
+                     .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .then(snapshot => {
+                      snapshot.forEach(doc => {
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                            listData.push(doc.data());
+                        }
+                      });
+                    })
+                    .catch(err => {
+                      console.log('Error getting documents', err);
+                    });
+      }
+
+    // Gender Target
+    }else{
+      if(params.SET_SEND_COUNTRY == "L"){
+        console.log('----------[[SET_SEND_GENDER M : SET_SEND_COUNTRY L ]]---------- : 4 ');
+        // Local
+        await dataRef.where('APP_STATUS', '==', 'A')
+                     .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .where('COUNTRY', '==', params.COUNTRY)
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .then(snapshot => {
+                      snapshot.forEach(doc => {
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                            listData.push(doc.data());
+                        }
+                      });
+                    })
+                    .catch(err => {
+                      console.log('Error getting documents', err);
+                    });
+      }else{
+        // World
+        console.log('----------[[SET_SEND_GENDER M : SET_SEND_COUNTRY W ]]---------- : 5 ');
+        await dataRef.where('APP_STATUS', '==', 'A')
+                     .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .where('GENDER', '==', params.SET_SEND_GENDER)
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .then(snapshot => {
+                      snapshot.forEach(doc => {
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                            listData.push(doc.data());
+                        }
+                      });
+                    })
+                    .catch(err => {
+                      console.log('Error getting documents', err);
+                    });
+        }
+    }
+
+   console.log('----------[[sendMessage  => listData.length]]---------- : '+listData.length);
+
      if(listData.length > 0 ){
-         
+
       //Build the message payload and send the message
           var payload = {
             notification: {
@@ -202,8 +270,8 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_COUNTRY_NAME:  params.FROM_COUNTRY_NAME,
               FROM_GENDER:  params.FROM_GENDER,
               FROM_LANG:  params.FROM_LANG,
-              LAST_TALK_TEXT: params.LAST_TALK_TEXT,     
-              TALK_ID: params.TALK_ID,   
+              LAST_TALK_TEXT: params.LAST_TALK_TEXT,
+              TALK_ID: params.TALK_ID,
               TALK_TYPE: params.TALK_TYPE,
               TO_APP_ID: listData[0].APP_ID,
               TO_APP_KEY: listData[0].APP_KEY,
@@ -219,97 +287,97 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               priority: "high",
               timeToLive: 60 * 60 * 24
           };
-            
+
           // FROM
           await admin.messaging().sendToDevice(params.FROM_APP_KEY, payload,options)
-            .then(function(response) {  
+            .then(function(response) {
                   console.log("Successfully sent message:", response);
               })
               .catch(function(error) {
                   console.log("Error sending message:", error);
-              });  
-          
+              });
+
           // TO
           await admin.messaging().sendToDevice(listData[0].APP_KEY, payload,options)
           .then(function(response) {
                 console.log("Successfully sent message:", response);
-                res.json(setResult("sendMessage","S",'',''));  
+                res.json(setResult("sendMessage","S",'',''));
             })
             .catch(function(error) {
               console.log("Error sending message:", error);
-              res.json(setResult("sendMessage","E",error,''));  
-            });  
+              res.json(setResult("sendMessage","E",error,''));
+            });
      }else{
-        res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));  
-     }   
+        res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));
+     }
 });
 
 // Reply Message
-exports.replyMessage = functions.https.onRequest(async (req, res) => { 
+exports.replyMessage = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[replyMessage]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("replyMessage","S",`To-Do`,''));   
+      console.log('----------[[replyMessage]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("replyMessage","S",`To-Do`,''));
 });
 
 // Good Bye Message
-exports.goodbyeMessage = functions.https.onRequest(async (req, res) => { 
+exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("goodbyeMessage","S",`To-Do`,''));   
+      console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("goodbyeMessage","S",`To-Do`,''));
 });
 
 // Get Image Data
-exports.getImageData = functions.https.onRequest(async (req, res) => { 
+exports.getImageData = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[getImageData]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("getImageData","S",`To-Do`,''));   
+      console.log('----------[[getImageData]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("getImageData","S",`To-Do`,''));
 });
 
 // Get Voice Data
-exports.getVoiceData = functions.https.onRequest(async (req, res) => { 
+exports.getVoiceData = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[getVoiceData]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("getVoiceData","S",`To-Do`,''));   
+      console.log('----------[[getVoiceData]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("getVoiceData","S",`To-Do`,''));
 });
 
 // Request Black List
-exports.requstBlackList = functions.https.onRequest(async (req, res) => { 
+exports.requstBlackList = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("requstBlackList","S",`To-Do`,''));   
+      console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("requstBlackList","S",`To-Do`,''));
 });
 
 // Request Voc
-exports.requestVoc = functions.https.onRequest(async (req, res) => { 
+exports.requestVoc = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("requestVoc","S",`To-Do`,''));   
+      console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("requestVoc","S",`To-Do`,''));
 });
 
 // Error Stack Trace
-exports.errorStackTrace = functions.https.onRequest(async (req, res) => { 
+exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));      
-   }  
-   res.json(setResult("errorStackTrace","S",`To-Do`,''));   
+      console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));
+   }
+   res.json(setResult("errorStackTrace","S",`To-Do`,''));
 });
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-/* 
+/*
 ### Sample Process Functions && Cloud Filestore sample ###
 
 // Create and Deploy Your First Cloud Functions
@@ -325,85 +393,85 @@ exports.sample = functions.https.onRequest((req, res) => {
       <title>Simple Random Chat</title>
     </head>
     <body>
-      Simple Random Chat 
+      Simple Random Chat
     </body>
   </html>`);
 });
 
 // Create Sample Functions
-exports.create = functions.https.onRequest(async (req, res) => {    
+exports.create = functions.https.onRequest(async (req, res) => {
   var params = getParamsObj(req);
-  console.log('----------[[create]]---------- : '+ JSON.stringify(params));     
-  
-  params.APP_STATUS = "A";  
+  console.log('----------[[create]]---------- : '+ JSON.stringify(params));
+
+  params.APP_STATUS = "A";
   params.X_BLACK_LIST_COUNT = "0";
   params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
   try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);     
-    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));   
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);
+    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));
   }catch(err){
     console.error(err);
-    res.json(setResult("create","E",err.stack,``));       
+    res.json(setResult("create","E",err.stack,``));
   }
 });
 
  // Read Sample Functions (To-Do)
-exports.read = functions.https.onRequest(async (req, res) => {    
+exports.read = functions.https.onRequest(async (req, res) => {
   var params = getParamsObj(req);
-  console.log('----------[[read]]---------- : '+ JSON.stringify(params));    
+  console.log('----------[[read]]---------- : '+ JSON.stringify(params));
 
   var listData = new Array();
-  
+
   var dataRef = admin.firestore().collection('SAMPLE');
 
   await dataRef.where('APP_VER', '==', params.APP_VER).get()
     .then(snapshot => {
-      snapshot.forEach(doc => {                
+      snapshot.forEach(doc => {
         listData.push(doc.data());
       });
     })
-    .catch(err => {     
-      console.log('Error getting documents', err);      
-      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));    
+    .catch(err => {
+      console.log('Error getting documents', err);
+      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));
     });
-  
-  res.json(setResult("read","S","",listData));    
+
+  res.json(setResult("read","S","",listData));
 });
 
  // Update Sample Functions
-exports.update = functions.https.onRequest(async (req, res) => {    
+exports.update = functions.https.onRequest(async (req, res) => {
    var params = getParamsObj(req);
-   console.log('----------[[update]]---------- : '+ JSON.stringify(params));  
+   console.log('----------[[update]]---------- : '+ JSON.stringify(params));
 
   try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(    
-         { 
+    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(
+         {
            APP_KEY : params.APP_KEY
           ,APP_NUMBER : params.APP_NUMBER
           ,APP_VER : params.APP_VER
           ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
          }
       );
-    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
+    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,''));
   }catch(err){
     console.error(err);
-    res.json(setResult("update","E",err.stack,``));      
-  }       
+    res.json(setResult("update","E",err.stack,``));
+  }
 });
 
  // Delete Sample Functions
-exports.delete = functions.https.onRequest(async (req, res) => {    
+exports.delete = functions.https.onRequest(async (req, res) => {
   var params = getParamsObj(req);
-  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));  
+  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));
 
   try{
     await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
-    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``)); 
+    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``));
   }catch(err){
     console.error(err);
-    res.json(setResult("delete","E",err.stack,``));      
-  }      
+    res.json(setResult("delete","E",err.stack,``));
+  }
 });
 
 // [START addMessage]
@@ -422,7 +490,7 @@ res.json({result: `Message with ID: ${writeResult.id} added.`});
 // [END adminSdkAdd]
 });
 // [END addMessage]
-  
+
 // [START makeUppercase]
 // Listens for new messages added to /messages/:documentId/original and creates an
 // uppercase version of the message to /messages/:documentId/uppercase
@@ -443,6 +511,6 @@ exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
   });
 // [END makeUppercase]
 // [END all]
-*/  
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////
