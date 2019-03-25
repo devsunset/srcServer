@@ -103,17 +103,18 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
       res.json(setResult("appNotice","E",'Error getting documents : '+err.stack,''));    
     });
 
-  try{
-      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
-        { 
-          Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
-        }
-      );      
-    }catch(err){
-      console.error(err);      
-    }
-
-   res.json(setResult("appNotice","S","",listData));  
+  if("-" != params.APP_ID){
+      try{
+        await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
+          { 
+            Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+          }
+        );      
+      }catch(err){
+        console.error(err);      
+      }
+  }
+  res.json(setResult("appNotice","S","",listData));  
 });
 
 // App Info Init
@@ -146,44 +147,17 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
   params.APP_STATUS = "A";  
   params.Z_LAST_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
-  try{
-	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
-	  res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,''));   
-	}catch(err){
-	  console.error(err);
-	  res.json(setResult("appInfoUpdate","E",err.stack,``));       
-	}
-  
-  /*
-  try{
-    await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(    
-      { 
-         APP_KEY : params.APP_KEY
-        ,APP_PHONE : params.APP_PHONE
-        ,APP_VER : params.APP_VER
-        ,COUNTRY : params.COUNTRY
-        ,COUNTRY_NAME : params.COUNTRY_NAME
-        ,GENDER : params.GENDER
-        ,LANG : params.LANG        
-        ,SET_ALARM_YN : params.SET_ALARM_YN
-        ,SET_ALARM_NOTI_YN : params.SET_ALARM_NOTI_YN
-        ,SET_ALARM_POPUP_YN : params.SET_ALARM_POPUP_YN
-        ,SET_BYE_CONFIRM_YN : params.SET_BYE_CONFIRM_YN
-        ,SET_LOCK_PWD : params.SET_LOCK_PWD
-        ,SET_LOCK_YN : params.SET_LOCK_YN
-        ,SET_NEW_RECEIVE_YN : params.SET_NEW_RECEIVE_YN
-        ,SET_SEND_COUNTRY : params.SET_SEND_COUNTRY
-        ,SET_SEND_GENDER : params.SET_SEND_GENDER
-        ,SET_SEND_LIST_HIDE_YN : params.SET_SEND_LIST_HIDE_YN
-        ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
-      }
-    );
-    res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,'')); 
-  }catch(err){
-    console.error(err);
-    res.json(setResult("appInfoUpdate","E",err.stack,``));    
-  }
-  */
+  if("-" != params.APP_ID){
+    try{
+      await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);     
+      res.json(setResult("appInfoUpdate","S",`DOC ID: ${params.APP_ID} updated.`,''));   
+    }catch(err){
+      console.error(err);
+      res.json(setResult("appInfoUpdate","E",err.stack,``));       
+    }
+  }else{
+    res.json(setResult("appInfoUpdate","E","APP_ID - SKIP",``));       
+  }  
 });
 
 // Send Message
@@ -211,7 +185,8 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
       });
   
      if(listData.length > 0 ){
-         //Build the message payload and send the message
+         
+      //Build the message payload and send the message
           var payload = {
             notification: {
               title: 'Received Message',
@@ -267,7 +242,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
      }else{
         res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));  
      }   
-
 });
 
 // Reply Message
