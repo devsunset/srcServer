@@ -77,6 +77,19 @@ function setResult(call_function,result_code,result_message,result_data){
   return JSON.parse(JSON.stringify(result));
 }
 
+///■■■  random integer value return  - min ~ max
+function getRandomIdx(min, max) {
+  if(min == 0 && max == 1){
+    return 0;
+  }
+  
+  var randomIdx = Math.floor(Math.random() * (max - min)) + min;
+
+  if(randomIdx == max){
+     return max - 1 ;
+  }
+  return randomIdx;
+}
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Biz Logic Process Functions
@@ -171,13 +184,10 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
 
     var dataRef = admin.firestore().collection('APP_USERS');
 
-    console.log('----------[[sendMessage]]---------- : 1 ');
-
     // Gender ALL
     if(params.SET_SEND_GENDER == "A"){
 
       if(params.SET_SEND_COUNTRY == "L"){
-        console.log('----------[[SET_SEND_GENDER A : SET_SEND_COUNTRY L ]]---------- : 2 ');
         // Local
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
@@ -194,7 +204,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
                       console.log('Error getting documents', err);
                     });
       }else{
-        console.log('----------[[SET_SEND_GENDER A : SET_SEND_COUNTRY W ]]---------- : 3 ');
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
@@ -214,7 +223,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
     // Gender Target
     }else{
       if(params.SET_SEND_COUNTRY == "L"){
-        console.log('----------[[SET_SEND_GENDER M : SET_SEND_COUNTRY L ]]---------- : 4 ');
         // Local
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
@@ -232,7 +240,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
                     });
       }else{
         // World
-        console.log('----------[[SET_SEND_GENDER M : SET_SEND_COUNTRY W ]]---------- : 5 ');
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
                      .where('GENDER', '==', params.SET_SEND_GENDER)
@@ -250,14 +257,64 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         }
     }
 
-   console.log('----------[[sendMessage  => listData.length]]---------- : '+listData.length);
-
      if(listData.length > 0 ){
+
+         var idx  = getRandomIdx(0,listData.length);
+
+         // App Talk Main History
+         var appTalkMain =  {
+          ATX_ID: params.ATX_ID,
+          ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+          ATX_STATUS: 'F',
+          FROM_APP_ID: params.FROM_APP_ID,
+          FROM_COUNTRY: params.FROM_COUNTRY,
+          FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
+          FROM_GENDER: params.FROM_GENDER,
+          FROM_LANG: params.FROM_LANG,
+          TALK_ID: params.TALK_ID,
+          TALK_TEXT: params.LAST_TALK_TEXT,
+          TALK_TYPE: params.TALK_TYPE,
+          TO_APP_ID: listData[idx].APP_ID,
+          TO_COUNTRY: listData[idx].COUNTRY,
+          TO_COUNTRY_NAME: listData[idx].COUNTRY_NAME,
+          TO_GENDER: listData[idx].GENDER,
+          TO_LANG: listData[idx].LANG
+        }
+
+        try{
+          await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).set(appTalkMain);
+        }catch(err){
+          console.error(err);             
+        }
+
+        // App Talk Thread History
+         var appTalkThread =  {
+          ATX_ID: params.ATX_ID,
+          TALK_APP_ID: params.FROM_APP_ID,
+          TALK_ID: params.TALK_ID,
+          TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+          TALK_COUNTRY: params.FROM_COUNTRY,
+          TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
+          TALK_GENDER: params.FROM_GENDER,
+          TALK_LANG: params.FROM_LANG,
+          TALK_TEXT: params.LAST_TALK_TEXT,
+          TALK_TEXT_IMAGE: '',
+          TALK_TEXT_VOICE: '',
+          TALK_TRANS_TEXT: '',
+          TALK_TYPE: params.TALK_TYPE
+        }
+
+        try{
+          await admin.firestore().collection('APP_TALK_THREAD').doc(params.TALK_ID).set(appTalkThread);
+        }catch(err){
+          console.error(err);             
+        }
+
 
       //Build the message payload and send the message
           var payload = {
             notification: {
-              title: 'Received Message',
+              title: 'Hello message received.',
               body: ''
             },
             data: {
@@ -271,14 +328,15 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_GENDER:  params.FROM_GENDER,
               FROM_LANG:  params.FROM_LANG,
               LAST_TALK_TEXT: params.LAST_TALK_TEXT,
+              LAST_TALK_TRANS_TEXT: '',
               TALK_ID: params.TALK_ID,
               TALK_TYPE: params.TALK_TYPE,
-              TO_APP_ID: listData[0].APP_ID,
-              TO_APP_KEY: listData[0].APP_KEY,
-              TO_COUNTRY: listData[0].COUNTRY,
-              TO_COUNTRY_NAME: listData[0].COUNTRY_NAME,
-              TO_GENDER: listData[0].GENDER,
-              TO_LANG: listData[0].LANG
+              TO_APP_ID: listData[idx].APP_ID,
+              TO_APP_KEY: listData[idx].APP_KEY,
+              TO_COUNTRY: listData[idx].COUNTRY,
+              TO_COUNTRY_NAME: listData[idx].COUNTRY_NAME,
+              TO_GENDER: listData[idx].GENDER,
+              TO_LANG: listData[idx].LANG
             }
           };
 
@@ -301,16 +359,52 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           await admin.messaging().sendToDevice(listData[0].APP_KEY, payload,options)
           .then(function(response) {
                 console.log("Successfully sent message:", response);
+                //To-Do 메세지 전송 실패시 history 제어 처리 
                 res.json(setResult("sendMessage","S",'',''));
             })
             .catch(function(error) {
               console.log("Error sending message:", error);
               res.json(setResult("sendMessage","E",error,''));
             });
+
      }else{
+        // App Talk Main History
+        var appTalkMain =  {
+              ATX_ID: params.ATX_ID,
+              ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+              ATX_STATUS: 'X',
+              FROM_APP_ID: params.FROM_APP_ID,
+              FROM_COUNTRY: params.FROM_COUNTRY,
+              FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
+              FROM_GENDER: params.FROM_GENDER,
+              FROM_LANG: params.FROM_LANG,
+              TALK_ID: params.TALK_ID,
+              TALK_TEXT: params.LAST_TALK_TEXT,
+              TALK_TYPE: params.TALK_TYPE,
+              TO_APP_ID: '',
+              TO_COUNTRY: '',
+              TO_COUNTRY_NAME: '',
+              TO_GENDER: '',
+              TO_LANG: ''
+            }
+
+            try{
+              await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).set(appTalkMain);
+            }catch(err){
+              console.error(err);             
+            }
+
         res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));
      }
 });
+
+
+
+
+
+
+
+
 
 // Reply Message
 exports.replyMessage = functions.https.onRequest(async (req, res) => {

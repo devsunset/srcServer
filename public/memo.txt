@@ -49,74 +49,6 @@ GENDER 오름차순
 Z_LAST_ACCESS_TIME 내림차순
 
 ---------------------------------------------------------------------------------
-# SERVER - APP_TALK_MAIN
----------------------------------------------------------------------------------
-
-ATX_ID
-ATX_INIT_TIME
-ATX_STATUS
-FROM_APP_ID
-FROM_APP_KEY
-FROM_COUNTRY
-FROM_COUNTRY_NAME
-FROM_GENDER
-FROM_LANG
-TO_APP_ID
-TO_APP_KEY
-TO_COUNTRY
-TO_COUNTRY_NAME
-TO_GENDER
-TO_LANG
-
----------------------------------------------------------------------------------
-# SERVER - APP_TALK_THREAD
----------------------------------------------------------------------------------
-
-ATX_ID
-TALK_APP_ID
-TALK_ID
-TALK_INIT_TIME
-TALK_COUNTRY
-TALK_COUNTRY_NAME
-TALK_GENDER
-TALK_TEXT
-TALK_TEXT_IMAGE
-TALK_TEXT_VOICE
-TALK_TRANS_TEXT
-TALK_TYPE
-
----------------------------------------------------------------------------------
-# SERVER - APP_BLACK_LIST
----------------------------------------------------------------------------------
-
-ABX_ID
-ATX_ID
-ATX_INIT_TIME
-FROM_APP_ID
-FROM_COUNTRY
-FROM_COUNTRY_NAME
-FROM_GENDER
-FROM_LANG
-TO_APP_ID
-TO_COUNTRY
-TO_COUNTRY_NAME
-TO_GENDER
-TO_LANG
-
----------------------------------------------------------------------------------
-# SERVER - APP_REQUEST
----------------------------------------------------------------------------------
-
-REQ_ID
-REQ_INIT_TIME
-REQ_APP_ID
-REQ_COUNTRY
-REQ_COUNTRY_NAME
-REQ_GENDER
-REQ_LANG
-REQ_TEXT
-
----------------------------------------------------------------------------------
 # APP - ShardPreference
 ---------------------------------------------------------------------------------
 
@@ -138,6 +70,27 @@ SET_NEW_RECEIVE_YN
 SET_SEND_COUNTRY
 SET_SEND_GENDER
 SET_SEND_LIST_HIDE_YN
+
+---------------------------------------------------------------------------------
+# SERVER - APP_TALK_MAIN
+---------------------------------------------------------------------------------
+
+ATX_ID
+ATX_INIT_TIME
+ATX_STATUS
+FROM_APP_ID
+FROM_COUNTRY
+FROM_COUNTRY_NAME
+FROM_GENDER
+FROM_LANG
+TALK_ID
+TALK_TEXT
+TALK_TYPE
+TO_APP_ID
+TO_COUNTRY
+TO_COUNTRY_NAME
+TO_GENDER
+TO_LANG
 
 ---------------------------------------------------------------------------------
 # APP - APP_TALK_MAIN
@@ -167,13 +120,67 @@ TO_LANG
 ---------------------------------------------------------------------------------
 
 ATX_ID
-TALK_LOCAL_TIME
 TALK_APP_ID
+TALK_ID
+TALK_INIT_TIME
+TALK_COUNTRY
+TALK_COUNTRY_NAME
+TALK_GENDER
+TALK_LANG
+TALK_TEXT
+TALK_TEXT_IMAGE
+TALK_TEXT_VOICE
+TALK_TRANS_TEXT
+TALK_TYPE
+
+---------------------------------------------------------------------------------
+# APP - APP_TALK_THREAD
+---------------------------------------------------------------------------------
+
+ATX_ID
+TALK_APP_ID
+TALK_LOCAL_TIME
 TALK_ID
 TALK_COUNTRY
 TALK_COUNTRY_NAME
 TALK_GENDER
+TALK_LANG
 TALK_TEXT
 TALK_TEXT_IMAGE
 TALK_TEXT_VOICE
+TALK_TRANS_TEXT
 TALK_TYPE
+
+---------------------------------------------------------------------------------
+# SERVER - APP_BLACK_LIST
+---------------------------------------------------------------------------------
+
+ABX_ID
+ATX_ID
+ATX_INIT_TIME
+FROM_APP_ID
+FROM_COUNTRY
+FROM_COUNTRY_NAME
+FROM_GENDER
+FROM_LANG
+TARGET_APP_ID
+TO_APP_ID
+TO_COUNTRY
+TO_COUNTRY_NAME
+TO_GENDER
+TO_LANG
+
+---------------------------------------------------------------------------------
+# SERVER - APP_REQUEST
+---------------------------------------------------------------------------------
+
+REQ_ID
+REQ_INIT_TIME
+REQ_APP_ID
+REQ_COUNTRY
+REQ_COUNTRY_NAME
+REQ_GENDER
+REQ_LANG
+REQ_TEXT
+
+
