@@ -7,10 +7,8 @@
       ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}  
       ,{"source": "/sendMessage", "function": "sendMessage"}
       ,{"source": "/replyMessage", "function": "replyMessage"}
-      ,{"source": "/retryMessage", "function": "retryMessage"}
       ,{"source": "/goodbyeMessage", "function": "goodbyeMessage"}
-      ,{"source": "/getImageData", "function": "getImageData"}
-      ,{"source": "/getVoiceData", "function": "getVoiceData"}
+      ,{"source": "/getTalkThreadData", "function": "getTalkThreadData"}
       ,{"source": "/requstBlackList", "function": "requstBlackList"}
       ,{"source": "/requestVoc", "function": "requestVoc"}
       ,{"source": "/errorStackTrace", "function": "errorStackTrace"}

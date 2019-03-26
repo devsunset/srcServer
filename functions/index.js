@@ -138,7 +138,6 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
 	}
 
 	params.APP_STATUS = "A";
-	params.X_BLACK_LIST_COUNT = "0";
 	params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
 	try{
@@ -207,6 +206,8 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .where('COUNTRY', '>', params.COUNTRY)
+                     .where('COUNTRY', '<', params.COUNTRY)
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
@@ -227,6 +228,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
                      .where('COUNTRY', '==', params.COUNTRY)
+                     .where('GENDER', '==', params.SET_SEND_GENDER)
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
@@ -242,6 +244,8 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
+                     .where('COUNTRY', '>', params.COUNTRY)
+                     .where('COUNTRY', '<', params.COUNTRY)
                      .where('GENDER', '==', params.SET_SEND_GENDER)
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
                      .then(snapshot => {
@@ -379,12 +383,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_LANG: params.FROM_LANG,
               TALK_ID: params.TALK_ID,
               TALK_TEXT: params.LAST_TALK_TEXT,
-              TALK_TYPE: params.TALK_TYPE,
-              TO_APP_ID: '',
-              TO_COUNTRY: '',
-              TO_COUNTRY_NAME: '',
-              TO_GENDER: '',
-              TO_LANG: ''
+              TALK_TYPE: params.TALK_TYPE              
             }
 
             try{
@@ -423,22 +422,32 @@ exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
    res.json(setResult("goodbyeMessage","S",`To-Do`,''));
 });
 
-// Get Image Data
-exports.getImageData = functions.https.onRequest(async (req, res) => {
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[getImageData]]---------- : '+ JSON.stringify(params));
-   }
-   res.json(setResult("getImageData","S",`To-Do`,''));
-});
 
-// Get Voice Data
-exports.getVoiceData = functions.https.onRequest(async (req, res) => {
+
+
+// Get Talk Thread Data
+exports.getTalkThreadData = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[getVoiceData]]---------- : '+ JSON.stringify(params));
+      console.log('----------[[getTalkThreadData]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("getVoiceData","S",`To-Do`,''));
+
+  var listData = new Array();
+
+  var dataRef = admin.firestore().collection('APP_TALK_THREAD');
+
+  await dataRef.where('TALK_ID', '==', params.TALK_ID).get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        listData.push(doc.data());
+      });
+    })
+    .catch(err => {
+      console.log('Error getting documents', err);
+      res.json(setResult("getTalkThreadData","E",'Error getting documents : '+err.stack,''));
+    });
+
+   res.json(setResult("getTalkThreadData","S",``,listData));
 });
 
 // Request Black List
@@ -447,7 +456,14 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("requstBlackList","S",`To-Do`,''));
+
+   try{
+     await admin.firestore().collection('APP_BLACK_LIST').doc(params.ABX_ID).set(params);
+     res.json(setResult("requstBlackList","S",`DOC ID: ${params.ABX_ID} created.`,''));
+   }catch(err){
+     console.error(err);
+     res.json(setResult("requstBlackList","E",err.stack,``));
+   }
 });
 
 // Request Voc
@@ -456,7 +472,14 @@ exports.requestVoc = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("requestVoc","S",`To-Do`,''));
+
+   try{
+     await admin.firestore().collection('APP_REQUEST').doc(params.REQ_ID).set(params);
+     res.json(setResult("requestVoc","S",`DOC ID: ${params.REQ_ID} created.`,''));
+   }catch(err){
+     console.error(err);
+     res.json(setResult("requestVoc","E",err.stack,``));
+   }
 });
 
 // Error Stack Trace
@@ -465,7 +488,14 @@ exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("errorStackTrace","S",`To-Do`,''));
+   
+   try{
+     await admin.firestore().collection('APP_ERROR').doc(params.ERROR_ID).set(params);
+     res.json(setResult("errorStackTrace","S",`DOC ID: ${params.ERROR_ID} created.`,''));
+   }catch(err){
+     console.error(err);
+     res.json(setResult("errorStackTrace","E",err.stack,``));
+   }
 });
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -497,7 +527,6 @@ exports.create = functions.https.onRequest(async (req, res) => {
   console.log('----------[[create]]---------- : '+ JSON.stringify(params));
 
   params.APP_STATUS = "A";
-  params.X_BLACK_LIST_COUNT = "0";
   params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
   try{

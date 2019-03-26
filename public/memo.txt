@@ -29,7 +29,6 @@ SET_NEW_RECEIVE_YN
 SET_SEND_COUNTRY
 SET_SEND_GENDER
 SET_SEND_LIST_HIDE_YN
-X_BLACK_LIST_COUNT
 Z_INIT_ACCESS_TIME
 Z_LAST_ACCESS_TIME
 
@@ -119,11 +118,10 @@ TO_LANG
 # SERVER - APP_TALK_THREAD
 ---------------------------------------------------------------------------------
 
-TALK_ID
-
 ATX_ID
 TALK_APP_ID
 TALK_INIT_TIME
+TALK_ID
 TALK_COUNTRY
 TALK_COUNTRY_NAME
 TALK_GENDER
@@ -158,7 +156,6 @@ TALK_TYPE
 
 ABX_ID
 ATX_ID
-ATX_INIT_TIME
 FROM_APP_ID
 FROM_COUNTRY
 FROM_COUNTRY_NAME
@@ -170,18 +167,19 @@ TO_COUNTRY
 TO_COUNTRY_NAME
 TO_GENDER
 TO_LANG
+Z_LAST_ACCESS_TIME
 
 ---------------------------------------------------------------------------------
 # SERVER - APP_REQUEST
 ---------------------------------------------------------------------------------
 
 REQ_ID
-REQ_INIT_TIME
 REQ_APP_ID
 REQ_COUNTRY
 REQ_COUNTRY_NAME
 REQ_GENDER
 REQ_LANG
 REQ_TEXT
+Z_LAST_ACCESS_TIME
 
 
