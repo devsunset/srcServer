@@ -34,8 +34,8 @@ Z_LAST_ACCESS_TIME
 
 # 색인 1
 APP_STATUS 오름차순
-COUNTRY 오름차순
 SET_NEW_RECEIVE_YN 오름차순
+COUNTRY 오름차순
 Z_LAST_ACCESS_TIME 내림차순
 
 # 색인 2
