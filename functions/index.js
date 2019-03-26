@@ -290,8 +290,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // App Talk Thread History
          var appTalkThread =  {
           ATX_ID: params.ATX_ID,
-          TALK_APP_ID: params.FROM_APP_ID,
-          TALK_ID: params.TALK_ID,
+          TALK_APP_ID: params.FROM_APP_ID,  
           TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
           TALK_COUNTRY: params.FROM_COUNTRY,
           TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
@@ -356,7 +355,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               });
 
           // TO
-          await admin.messaging().sendToDevice(listData[0].APP_KEY, payload,options)
+          await admin.messaging().sendToDevice(listData[idx].APP_KEY, payload,options)
           .then(function(response) {
                 console.log("Successfully sent message:", response);
                 //To-Do 메세지 전송 실패시 history 제어 처리 

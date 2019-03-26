@@ -119,9 +119,10 @@ TO_LANG
 # SERVER - APP_TALK_THREAD
 ---------------------------------------------------------------------------------
 
+TALK_ID
+
 ATX_ID
 TALK_APP_ID
-TALK_ID
 TALK_INIT_TIME
 TALK_COUNTRY
 TALK_COUNTRY_NAME
