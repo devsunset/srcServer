@@ -206,12 +206,10 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
-                     .where('COUNTRY', '>', params.COUNTRY)
-                     .where('COUNTRY', '<', params.COUNTRY)
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
-                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                        if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
                             listData.push(doc.data());
                         }
                       });
@@ -244,13 +242,11 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
-                     .where('COUNTRY', '>', params.COUNTRY)
-                     .where('COUNTRY', '<', params.COUNTRY)
                      .where('GENDER', '==', params.SET_SEND_GENDER)
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
-                        if (params.FROM_APP_ID != doc.data().APP_ID){
+                        if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
                             listData.push(doc.data());
                         }
                       });
