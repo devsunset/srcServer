@@ -270,10 +270,10 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           FROM_COUNTRY: params.FROM_COUNTRY,
           FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
           FROM_GENDER: params.FROM_GENDER,
-          FROM_LANG: params.FROM_LANG,
-          TALK_ID: params.TALK_ID,
-          TALK_TEXT: params.LAST_TALK_TEXT,
-          TALK_TYPE: params.TALK_TYPE,
+          FROM_LANG: params.FROM_LANG,   
+          LAST_TALK_APP_ID: params.APP_ID,
+          LAST_TALK_TEXT: params.LAST_TALK_TEXT,
+          LAST_TALK_TYPE: params.LAST_TALK_TYPE,
           TO_APP_ID: listData[idx].APP_ID,
           TO_COUNTRY: listData[idx].COUNTRY,
           TO_COUNTRY_NAME: listData[idx].COUNTRY_NAME,
@@ -292,6 +292,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           ATX_ID: params.ATX_ID,
           TALK_APP_ID: params.FROM_APP_ID,  
           TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+          TALK_ID:params.TALK_ID,
           TALK_COUNTRY: params.FROM_COUNTRY,
           TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
           TALK_GENDER: params.FROM_GENDER,
@@ -300,7 +301,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           TALK_TEXT_IMAGE: '',
           TALK_TEXT_VOICE: '',
           TALK_TRANS_TEXT: '',
-          TALK_TYPE: params.TALK_TYPE
+          TALK_TYPE: params.LAST_TALK_TYPE
         }
 
         try{
@@ -312,10 +313,6 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
 
       //Build the message payload and send the message
           var payload = {
-            notification: {
-              title: 'Hello message received.',
-              body: ''
-            },
             data: {
               ATX_ID: params.ATX_ID,
               ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
@@ -326,10 +323,11 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_COUNTRY_NAME:  params.FROM_COUNTRY_NAME,
               FROM_GENDER:  params.FROM_GENDER,
               FROM_LANG:  params.FROM_LANG,
+              TALK_ID:params.TALK_ID,
+              LAST_TALK_APP_ID: params.APP_ID,
               LAST_TALK_TEXT: params.LAST_TALK_TEXT,
-              LAST_TALK_TRANS_TEXT: '',
-              TALK_ID: params.TALK_ID,
-              TALK_TYPE: params.TALK_TYPE,
+              LAST_TALK_TRANS_TEXT: '',    
+              LAST_TALK_TYPE: params.LAST_TALK_TYPE,
               TO_APP_ID: listData[idx].APP_ID,
               TO_APP_KEY: listData[idx].APP_KEY,
               TO_COUNTRY: listData[idx].COUNTRY,
@@ -342,27 +340,32 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           // Create an options object that contains the time to live for the notification and the priority
           const options = {
               priority: "high",
-              timeToLive: 60 * 60 * 24
+              timeToLive: 60 * 60 * 24 * 15
           };
 
           // FROM
           await admin.messaging().sendToDevice(params.FROM_APP_KEY, payload,options)
             .then(function(response) {
-                  console.log("Successfully sent message:", response);
+                  console.log("Successfully send message:", response);
               })
               .catch(function(error) {
-                  console.log("Error sending message:", error);
+                  console.log("Error send message:", error);
               });
 
           // TO
           await admin.messaging().sendToDevice(listData[idx].APP_KEY, payload,options)
           .then(function(response) {
-                console.log("Successfully sent message:", response);
-                //To-Do 메세지 전송 실패시 history 제어 처리 
+                console.log("Successfully send message:", response);
+                //To-Do 메세지 전송 실패시 후 처리 
+                // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
+                // canonicalRegistrationTokenCount: 0,
+                // failureCount: 0,
+                // successCount: 1,
+                // multicastId: 7641115737720613000 }
                 res.json(setResult("sendMessage","S",'',''));
             })
             .catch(function(error) {
-              console.log("Error sending message:", error);
+              console.log("Error send message:", error);
               res.json(setResult("sendMessage","E",error,''));
             });
 
@@ -377,9 +380,9 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
               FROM_GENDER: params.FROM_GENDER,
               FROM_LANG: params.FROM_LANG,
-              TALK_ID: params.TALK_ID,
-              TALK_TEXT: params.LAST_TALK_TEXT,
-              TALK_TYPE: params.TALK_TYPE              
+              LAST_TALK_APP_ID: params.APP_ID,
+              LAST_TALK_TEXT: params.LAST_TALK_TEXT,
+              LAST_TALK_TYPE: params.LAST_TALK_TYPE
             }
 
             try{
@@ -392,21 +395,94 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
      }
 });
 
-
-
-
-
-
-
-
-
 // Reply Message
 exports.replyMessage = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
       console.log('----------[[replyMessage]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("replyMessage","S",`To-Do`,''));
+
+    // App Talk Main History Update
+    try{
+      await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
+        {
+          ATX_STATUS: 'P',
+          LAST_TALK_APP_ID: params.APP_ID,
+          LAST_TALK_TEXT: params.LAST_TALK_TEXT,
+          LAST_TALK_TYPE: params.LAST_TALK_TYPE,
+          Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
+        }
+      );
+    }catch(err){
+      console.error(err);
+    }
+
+    // App Talk Thread History
+    var appTalkThread =  {
+      ATX_ID: params.ATX_ID,
+      TALK_APP_ID: params.FROM_APP_ID,  
+      TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+      TALK_ID:params.TALK_ID,
+      TALK_COUNTRY: params.FROM_COUNTRY,
+      TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
+      TALK_GENDER: params.FROM_GENDER,
+      TALK_LANG: params.FROM_LANG,
+      TALK_TEXT: params.LAST_TALK_TEXT,
+      TALK_TEXT_IMAGE: params.TALK_TEXT_IMAGE,
+      TALK_TEXT_VOICE: params.TALK_TEXT_VOICE,
+      TALK_TRANS_TEXT: '',
+      TALK_TYPE: params.LAST_TALK_TYPE
+    }
+
+    try{
+      await admin.firestore().collection('APP_TALK_THREAD').doc(params.TALK_ID).set(appTalkThread);
+    }catch(err){
+      console.error(err);             
+    }
+
+    //Build the message payload and send the message
+    var payload = {
+      data: {        
+        ATX_ID: params.ATX_ID,
+        ATX_STATUS:'P',
+        ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
+        TALK_APP_ID: params.APP_ID,  
+        TALK_ID:params.TALK_ID,
+        TALK_COUNTRY: params.COUNTRY,
+        TALK_COUNTRY_NAME: params.COUNTRY_NAME,
+        TALK_GENDER: params.FROM_GENDER,
+        TALK_LANG: params.LANG,
+        TALK_TEXT: params.LAST_TALK_TEXT,
+        TALK_TEXT_IMAGE: params.TALK_TEXT_IMAGE,
+        TALK_TEXT_VOICE: params.TALK_TEXT_VOICE,
+        TALK_TRANS_TEXT: '',
+        TALK_TYPE: params.LAST_TALK_TYPE
+      }
+    };
+
+    // Create an options object that contains the time to live for the notification and the priority
+    const options = {
+        priority: "high",
+        timeToLive: 60 * 60 * 24 * 15
+    };
+
+    await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
+      .then(function(response) {
+            console.log("Successfully reply message:", response);
+
+            //To-Do 메세지 전송 실패시 후 처리 
+            // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
+            // canonicalRegistrationTokenCount: 0,
+            // failureCount: 0,
+            // successCount: 1,
+            // multicastId: 7641115737720613000 }
+
+            res.json(setResult("replyMessage","S",``,''));
+        })
+        .catch(function(error) {
+            console.log("Error reply message:", error);
+            res.json(setResult("replyMessage","E",error,''));
+        }); 
 });
 
 // Good Bye Message
@@ -415,11 +491,51 @@ exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));
    }
-   res.json(setResult("goodbyeMessage","S",`To-Do`,''));
+
+   // App Talk Main History Update
+   try{
+    await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
+      {
+        ATX_STATUS: 'D',
+        LAST_TALK_APP_ID: params.APP_ID,
+        Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
+      }
+    );
+  }catch(err){
+    console.error(err);
+  }
+
+  //Build the message payload and send the message
+  var payload = {
+    data: {        
+      ATX_ID: params.ATX_ID,
+      ATX_STATUS:'D',
+      LAST_TALK_APP_ID: params.APP_ID
+    }
+  };
+
+  // Create an options object that contains the time to live for the notification and the priority
+  const options = {
+      priority: "high",
+      timeToLive: 60 * 60 * 24 * 15
+  };
+
+  await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
+    .then(function(response) {
+          console.log("Successfully goodby message:", response);
+          //To-Do 메세지 전송 실패시 후 처리 
+          // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
+          // canonicalRegistrationTokenCount: 0,
+          // failureCount: 0,
+          // successCount: 1,
+          // multicastId: 7641115737720613000 }
+          res.json(setResult("goodbyeMessage","S",``,''));
+      })
+      .catch(function(error) {
+          console.log("Error goodby message:", error);
+          res.json(setResult("goodbyeMessage","E",error,''));
+      }); 
 });
-
-
-
 
 // Get Talk Thread Data
 exports.getTalkThreadData = functions.https.onRequest(async (req, res) => {
@@ -454,8 +570,8 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
    }
 
    try{
-     await admin.firestore().collection('APP_BLACK_LIST').doc(params.ABX_ID).set(params);
-     res.json(setResult("requstBlackList","S",`DOC ID: ${params.ABX_ID} created.`,''));
+     await admin.firestore().collection('APP_BLACK_LIST').doc(params.ABL_ID).set(params);
+     res.json(setResult("requstBlackList","S",`DOC ID: ${params.ABL_ID} created.`,''));
    }catch(err){
      console.error(err);
      res.json(setResult("requstBlackList","E",err.stack,``));
@@ -486,8 +602,8 @@ exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
    }
    
    try{
-     await admin.firestore().collection('APP_ERROR').doc(params.ERROR_ID).set(params);
-     res.json(setResult("errorStackTrace","S",`DOC ID: ${params.ERROR_ID} created.`,''));
+     await admin.firestore().collection('APP_ERROR').doc(params.ERR_ID).set(params);
+     res.json(setResult("errorStackTrace","S",`DOC ID: ${params.ERR_ID} created.`,''));
    }catch(err){
      console.error(err);
      res.json(setResult("errorStackTrace","E",err.stack,``));
@@ -515,67 +631,6 @@ exports.sample = functions.https.onRequest((req, res) => {
       Simple Random Chat
     </body>
   </html>`);
-});
-
-// Create Sample Functions
-exports.create = functions.https.onRequest(async (req, res) => {
-  var params = getParamsObj(req);
-  console.log('----------[[create]]---------- : '+ JSON.stringify(params));
-
-  params.APP_STATUS = "A";
-  params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).set(params);
-    res.json(setResult("create","S",`DOC ID: ${params.APP_ID} created.`,''));
-  }catch(err){
-    console.error(err);
-    res.json(setResult("create","E",err.stack,``));
-  }
-});
-
- // Read Sample Functions (To-Do)
-exports.read = functions.https.onRequest(async (req, res) => {
-  var params = getParamsObj(req);
-  console.log('----------[[read]]---------- : '+ JSON.stringify(params));
-
-  var listData = new Array();
-
-  var dataRef = admin.firestore().collection('SAMPLE');
-
-  await dataRef.where('APP_VER', '==', params.APP_VER).get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        listData.push(doc.data());
-      });
-    })
-    .catch(err => {
-      console.log('Error getting documents', err);
-      res.json(setResult("read","E",'Error getting documents : '+err.stack,''));
-    });
-
-  res.json(setResult("read","S","",listData));
-});
-
- // Update Sample Functions
-exports.update = functions.https.onRequest(async (req, res) => {
-   var params = getParamsObj(req);
-   console.log('----------[[update]]---------- : '+ JSON.stringify(params));
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).update(
-         {
-           APP_KEY : params.APP_KEY
-          ,APP_NUMBER : params.APP_NUMBER
-          ,APP_VER : params.APP_VER
-          ,Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
-         }
-      );
-    res.json(setResult("update","S",`DOC ID: ${params.APP_ID} updated.`,''));
-  }catch(err){
-    console.error(err);
-    res.json(setResult("update","E",err.stack,``));
-  }
 });
 
  // Delete Sample Functions
