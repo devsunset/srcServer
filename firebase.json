@@ -7,7 +7,7 @@
       ,{"source": "/appInfoUpdate", "function": "appInfoUpdate"}  
       ,{"source": "/sendMessage", "function": "sendMessage"}
       ,{"source": "/replyMessage", "function": "replyMessage"}
-      ,{"source": "/goodbyeMessage", "function": "goodbyeMessage"}
+      ,{"source": "/byeMessage", "function": "byeMessage"}
       ,{"source": "/getTalkThreadData", "function": "getTalkThreadData"}
       ,{"source": "/requstBlackList", "function": "requstBlackList"}
       ,{"source": "/requestVoc", "function": "requestVoc"}

@@ -13,11 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 //////////////////////////////////////////////////////////////////////////////////////
 'use strict';
 //////////////////////////////////////////////////////////////////////////////////////
+
 // LOG PRINT FLAG
 const LOG_FLAG = true;
+
+// TARGET SEARCH LIMIT
+const RANDOM_NUMBER_LIMIT = 1000;
+
+// MESSSAGE STATUS
+const MESSAGE_STATUS_FIRST = 'F';
+const MESSAGE_STATUS_PROCEDDING = 'P';
+const MESSAGE_STATUS_DELETE = 'D';
+const MESSAGE_STATUS_X = 'X';
 
 // [START import]
 // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
@@ -30,6 +41,7 @@ admin.initializeApp();
 // Get the `FieldValue` object
 var FieldValue = require('firebase-admin').firestore.FieldValue;
 // [END import]
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Common Functions
@@ -81,10 +93,8 @@ function setResult(call_function,result_code,result_message,result_data){
 function getRandomIdx(min, max) {
   if(min == 0 && max == 1){
     return 0;
-  }
-  
+  }  
   var randomIdx = Math.floor(Math.random() * (max - min)) + min;
-
   if(randomIdx == max){
      return max - 1 ;
   }
@@ -137,7 +147,7 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
 	  console.log('----------[[appInfoInit]]---------- : '+ JSON.stringify(params));
 	}
 
-	params.APP_STATUS = "A";
+	params.APP_STATUS = "A"; // Active User
 	params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
 	try{
@@ -156,7 +166,7 @@ exports.appInfoUpdate = functions.https.onRequest(async (req, res) => {
      console.log('----------[[appInfoUpdate]]---------- : '+ JSON.stringify(params));
   }
 
-  params.APP_STATUS = "A";
+  params.APP_STATUS = "A"; // Active User
   params.Z_LAST_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
   if("-" != params.APP_ID){
@@ -191,7 +201,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
                      .where('COUNTRY', '==', params.COUNTRY)
-                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
                         if (params.FROM_APP_ID != doc.data().APP_ID){
@@ -206,9 +216,10 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         // World
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
-                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
+                        // To-Do 조건처리 (world)
                         if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
                             listData.push(doc.data());
                         }
@@ -227,7 +238,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
                      .where('COUNTRY', '==', params.COUNTRY)
                      .where('GENDER', '==', params.SET_SEND_GENDER)
-                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
                         if (params.FROM_APP_ID != doc.data().APP_ID){
@@ -243,9 +254,10 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         await dataRef.where('APP_STATUS', '==', 'A')
                      .where('SET_NEW_RECEIVE_YN', '==', 'Y')
                      .where('GENDER', '==', params.SET_SEND_GENDER)
-                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(1000).get()
+                     .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
+                        // To-Do 조건처리 (world)
                         if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
                             listData.push(doc.data());
                         }
@@ -264,21 +276,21 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
          // App Talk Main History
          var appTalkMain =  {
           ATX_ID: params.ATX_ID,
-          ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME,
-          ATX_STATUS: 'F',
+          ATX_STATUS: MESSAGE_STATUS_FIRST,
           FROM_APP_ID: params.FROM_APP_ID,
           FROM_COUNTRY: params.FROM_COUNTRY,
           FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
           FROM_GENDER: params.FROM_GENDER,
           FROM_LANG: params.FROM_LANG,   
-          LAST_TALK_APP_ID: params.APP_ID,
-          LAST_TALK_TEXT: params.LAST_TALK_TEXT,
-          LAST_TALK_TYPE: params.LAST_TALK_TYPE,
+          TALK_APP_ID: params.TALK_APP_ID,
+          TALK_TEXT: params.TALK_TEXT,
+          TALK_TYPE: params.TALK_TYPE,
           TO_APP_ID: listData[idx].APP_ID,
           TO_COUNTRY: listData[idx].COUNTRY,
           TO_COUNTRY_NAME: listData[idx].COUNTRY_NAME,
           TO_GENDER: listData[idx].GENDER,
-          TO_LANG: listData[idx].LANG
+          TO_LANG: listData[idx].LANG,
+          Z_INIT_ACCESS_TIME: params.Z_LAST_ACCESS_TIME
         }
 
         try{
@@ -291,17 +303,14 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
          var appTalkThread =  {
           ATX_ID: params.ATX_ID,
           TALK_APP_ID: params.FROM_APP_ID,  
-          TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
           TALK_ID:params.TALK_ID,
           TALK_COUNTRY: params.FROM_COUNTRY,
           TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
           TALK_GENDER: params.FROM_GENDER,
           TALK_LANG: params.FROM_LANG,
-          TALK_TEXT: params.LAST_TALK_TEXT,
-          TALK_TEXT_IMAGE: '',
-          TALK_TEXT_VOICE: '',
-          TALK_TRANS_TEXT: '',
-          TALK_TYPE: params.LAST_TALK_TYPE
+          TALK_TEXT: params.TALK_TEXT,
+          TALK_TYPE: params.TALK_TYPE,
+          Z_INIT_ACCESS_TIME: params.Z_LAST_ACCESS_TIME
         }
 
         try{
@@ -309,14 +318,11 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
         }catch(err){
           console.error(err);             
         }
-
-
-      //Build the message payload and send the message
+        //Build the message payload and send the message
           var payload = {
             data: {
               ATX_ID: params.ATX_ID,
-              ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
-              ATX_STATUS: params.ATX_STATUS,
+              ATX_STATUS: MESSAGE_STATUS_FIRST,
               FROM_APP_ID: params.FROM_APP_ID,
               FROM_APP_KEY:  params.FROM_APP_KEY,
               FROM_COUNTRY:  params.FROM_COUNTRY,
@@ -324,10 +330,9 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               FROM_GENDER:  params.FROM_GENDER,
               FROM_LANG:  params.FROM_LANG,
               TALK_ID:params.TALK_ID,
-              LAST_TALK_APP_ID: params.APP_ID,
-              LAST_TALK_TEXT: params.LAST_TALK_TEXT,
-              LAST_TALK_TRANS_TEXT: '',    
-              LAST_TALK_TYPE: params.LAST_TALK_TYPE,
+              TALK_APP_ID: params.APP_ID,
+              TALK_TEXT: params.TALK_TEXT,
+              TALK_TYPE: params.TALK_TYPE,
               TO_APP_ID: listData[idx].APP_ID,
               TO_APP_KEY: listData[idx].APP_KEY,
               TO_COUNTRY: listData[idx].COUNTRY,
@@ -336,13 +341,11 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               TO_LANG: listData[idx].LANG
             }
           };
-
           // Create an options object that contains the time to live for the notification and the priority
           const options = {
               priority: "high",
               timeToLive: 60 * 60 * 24 * 15
           };
-
           // FROM
           await admin.messaging().sendToDevice(params.FROM_APP_KEY, payload,options)
             .then(function(response) {
@@ -351,38 +354,31 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               .catch(function(error) {
                   console.log("Error send message:", error);
               });
-
           // TO
           await admin.messaging().sendToDevice(listData[idx].APP_KEY, payload,options)
           .then(function(response) {
                 console.log("Successfully send message:", response);
                 //To-Do 메세지 전송 실패시 후 처리 
-                // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
-                // canonicalRegistrationTokenCount: 0,
-                // failureCount: 0,
-                // successCount: 1,
-                // multicastId: 7641115737720613000 }
                 res.json(setResult("sendMessage","S",'',''));
             })
             .catch(function(error) {
               console.log("Error send message:", error);
               res.json(setResult("sendMessage","E",error,''));
             });
-
      }else{
         // App Talk Main History
         var appTalkMain =  {
               ATX_ID: params.ATX_ID,
-              ATX_INIT_TIME: params.Z_LAST_ACCESS_TIME,
-              ATX_STATUS: 'X',
+              ATX_STATUS: MESSAGE_STATUS_X,
               FROM_APP_ID: params.FROM_APP_ID,
               FROM_COUNTRY: params.FROM_COUNTRY,
               FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
               FROM_GENDER: params.FROM_GENDER,
               FROM_LANG: params.FROM_LANG,
-              LAST_TALK_APP_ID: params.APP_ID,
-              LAST_TALK_TEXT: params.LAST_TALK_TEXT,
-              LAST_TALK_TYPE: params.LAST_TALK_TYPE
+              TALK_APP_ID: params.APP_ID,
+              TALK_TEXT: params.TALK_TEXT,
+              TALK_TYPE: params.TALK_TYPE,
+              Z_INIT_ACCESS_TIME: params.Z_LAST_ACCESS_TIME
             }
 
             try{
@@ -401,15 +397,14 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[replyMessage]]---------- : '+ JSON.stringify(params));
    }
-
     // App Talk Main History Update
     try{
       await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
         {
-          ATX_STATUS: 'P',
-          LAST_TALK_APP_ID: params.APP_ID,
-          LAST_TALK_TEXT: params.LAST_TALK_TEXT,
-          LAST_TALK_TYPE: params.LAST_TALK_TYPE,
+          ATX_STATUS: MESSAGE_STATUS_PROCEDDING,
+          TALK_APP_ID: params.TALK_APP_ID,
+          TALK_TEXT: params.TALK_TEXT,
+          TALK_TYPE: params.TALK_TYPE,
           Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
         }
       );
@@ -420,18 +415,17 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
     // App Talk Thread History
     var appTalkThread =  {
       ATX_ID: params.ATX_ID,
-      TALK_APP_ID: params.FROM_APP_ID,  
-      TALK_INIT_TIME: params.Z_LAST_ACCESS_TIME,
+      TALK_APP_ID: params.TALK_APP_ID,  
       TALK_ID:params.TALK_ID,
-      TALK_COUNTRY: params.FROM_COUNTRY,
-      TALK_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
-      TALK_GENDER: params.FROM_GENDER,
-      TALK_LANG: params.FROM_LANG,
-      TALK_TEXT: params.LAST_TALK_TEXT,
+      TALK_COUNTRY: params.TALK_COUNTRY,
+      TALK_COUNTRY_NAME: params.TALK_COUNTRY_NAME,
+      TALK_GENDER: params.TALK_GENDER,
+      TALK_LANG: params.TALK_LANG,
+      TALK_TEXT: params.TALK_TEXT,
       TALK_TEXT_IMAGE: params.TALK_TEXT_IMAGE,
       TALK_TEXT_VOICE: params.TALK_TEXT_VOICE,
-      TALK_TRANS_TEXT: '',
-      TALK_TYPE: params.LAST_TALK_TYPE
+      TALK_TYPE: params.TALK_TYPE,
+      Z_INIT_ACCESS_TIME:params.Z_LAST_ACCESS_TIME
     }
 
     try{
@@ -444,22 +438,19 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
     var payload = {
       data: {        
         ATX_ID: params.ATX_ID,
-        ATX_STATUS:'P',
-        ATX_LOCAL_TIME: params.ATX_LOCAL_TIME,
+        ATX_STATUS:MESSAGE_STATUS_PROCEDDING,
         TALK_APP_ID: params.APP_ID,  
         TALK_ID:params.TALK_ID,
         TALK_COUNTRY: params.COUNTRY,
         TALK_COUNTRY_NAME: params.COUNTRY_NAME,
         TALK_GENDER: params.FROM_GENDER,
         TALK_LANG: params.LANG,
-        TALK_TEXT: params.LAST_TALK_TEXT,
+        TALK_TEXT: params.TALK_TEXT,
         TALK_TEXT_IMAGE: params.TALK_TEXT_IMAGE,
         TALK_TEXT_VOICE: params.TALK_TEXT_VOICE,
-        TALK_TRANS_TEXT: '',
-        TALK_TYPE: params.LAST_TALK_TYPE
+        TALK_TYPE: params.TALK_TYPE
       }
     };
-
     // Create an options object that contains the time to live for the notification and the priority
     const options = {
         priority: "high",
@@ -469,14 +460,7 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
     await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
       .then(function(response) {
             console.log("Successfully reply message:", response);
-
             //To-Do 메세지 전송 실패시 후 처리 
-            // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
-            // canonicalRegistrationTokenCount: 0,
-            // failureCount: 0,
-            // successCount: 1,
-            // multicastId: 7641115737720613000 }
-
             res.json(setResult("replyMessage","S",``,''));
         })
         .catch(function(error) {
@@ -485,35 +469,32 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
         }); 
 });
 
-// Good Bye Message
-exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
+// Bye Message
+exports.byeMessage = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
-      console.log('----------[[goodbyeMessage]]---------- : '+ JSON.stringify(params));
+      console.log('----------[[byeMessage]]---------- : '+ JSON.stringify(params));
    }
-
    // App Talk Main History Update
    try{
     await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
       {
-        ATX_STATUS: 'D',
-        LAST_TALK_APP_ID: params.APP_ID,
+        ATX_STATUS: MESSAGE_STATUS_DELETE,
+        TALK_APP_ID: params.TALK_APP_ID,
         Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
       }
     );
   }catch(err){
     console.error(err);
   }
-
   //Build the message payload and send the message
   var payload = {
     data: {        
       ATX_ID: params.ATX_ID,
-      ATX_STATUS:'D',
-      LAST_TALK_APP_ID: params.APP_ID
+      ATX_STATUS:MESSAGE_STATUS_DELETE,
+      TALK_APP_ID: params.TALK_APP_ID
     }
   };
-
   // Create an options object that contains the time to live for the notification and the priority
   const options = {
       priority: "high",
@@ -522,18 +503,13 @@ exports.goodbyeMessage = functions.https.onRequest(async (req, res) => {
 
   await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
     .then(function(response) {
-          console.log("Successfully goodby message:", response);
+          console.log("Successfully bye message:", response);
           //To-Do 메세지 전송 실패시 후 처리 
-          // Successfully sent message: { results: [ { messageId: '0:1553690365052861%9ff6474a9ff6474a' } ],
-          // canonicalRegistrationTokenCount: 0,
-          // failureCount: 0,
-          // successCount: 1,
-          // multicastId: 7641115737720613000 }
-          res.json(setResult("goodbyeMessage","S",``,''));
+          res.json(setResult("byeMessage","S",``,''));
       })
       .catch(function(error) {
-          console.log("Error goodby message:", error);
-          res.json(setResult("goodbyeMessage","E",error,''));
+          console.log("Error bye message:", error);
+          res.json(setResult("byeMessage","E",error,''));
       }); 
 });
 
@@ -568,8 +544,8 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));
    }
-
    try{
+     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME; 
      await admin.firestore().collection('APP_BLACK_LIST').doc(params.ABL_ID).set(params);
      res.json(setResult("requstBlackList","S",`DOC ID: ${params.ABL_ID} created.`,''));
    }catch(err){
@@ -584,8 +560,8 @@ exports.requestVoc = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));
    }
-
    try{
+     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
      await admin.firestore().collection('APP_REQUEST').doc(params.REQ_ID).set(params);
      res.json(setResult("requestVoc","S",`DOC ID: ${params.REQ_ID} created.`,''));
    }catch(err){
@@ -599,9 +575,9 @@ exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
       var params = getParamsObj(req);
       console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));
-   }
-   
+   }   
    try{
+     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
      await admin.firestore().collection('APP_ERROR').doc(params.ERR_ID).set(params);
      res.json(setResult("errorStackTrace","S",`DOC ID: ${params.ERR_ID} created.`,''));
    }catch(err){
@@ -631,20 +607,6 @@ exports.sample = functions.https.onRequest((req, res) => {
       Simple Random Chat
     </body>
   </html>`);
-});
-
- // Delete Sample Functions
-exports.delete = functions.https.onRequest(async (req, res) => {
-  var params = getParamsObj(req);
-  console.log('----------[[delete]]---------- : '+ JSON.stringify(params));
-
-  try{
-    await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
-    res.json(setResult("delete","S",`DOC ID: ${params.APP_ID} deleted.`,``));
-  }catch(err){
-    console.error(err);
-    res.json(setResult("delete","E",err.stack,``));
-  }
 });
 
 // [START addMessage]
@@ -685,5 +647,8 @@ exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
 // [END makeUppercase]
 // [END all]
 */
+
+ // Delete Sample Functions
+ // await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
 
 //////////////////////////////////////////////////////////////////////////////////////
