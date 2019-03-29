@@ -439,18 +439,19 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
       data: {        
         ATX_ID: params.ATX_ID,
         ATX_STATUS:MESSAGE_STATUS_PROCEDDING,
-        TALK_APP_ID: params.APP_ID,  
+        TALK_APP_ID: params.TALK_APP_ID,  
         TALK_ID:params.TALK_ID,
-        TALK_COUNTRY: params.COUNTRY,
-        TALK_COUNTRY_NAME: params.COUNTRY_NAME,
-        TALK_GENDER: params.FROM_GENDER,
-        TALK_LANG: params.LANG,
+        TALK_COUNTRY: params.TALK_COUNTRY,
+        TALK_COUNTRY_NAME: params.TALK_COUNTRY_NAME,
+        TALK_GENDER: params.TALK_GENDER,
+        TALK_LANG: params.TALK_LANG,
         TALK_TEXT: params.TALK_TEXT,
         TALK_TEXT_IMAGE: params.TALK_TEXT_IMAGE,
         TALK_TEXT_VOICE: params.TALK_TEXT_VOICE,
         TALK_TYPE: params.TALK_TYPE
       }
     };
+
     // Create an options object that contains the time to live for the notification and the priority
     const options = {
         priority: "high",
