@@ -18,6 +18,10 @@
 'use strict';
 //////////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////            Simple Random Chat Common Declare             //////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
 // LOG PRINT FLAG
 const LOG_FLAG = true;
 
@@ -42,6 +46,8 @@ admin.initializeApp();
 var FieldValue = require('firebase-admin').firestore.FieldValue;
 // [END import]
 
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////    Simple Random Chat Common Logic Process Functions     //////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Common Functions
@@ -100,9 +106,10 @@ function getRandomIdx(min, max) {
   }
   return randomIdx;
 }
-//////////////////////////////////////////////////////////////////////////////////////
 
-// Biz Logic Process Functions
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////     Simple Random Chat Biz Logic Process Functions       //////////////
+//////////////////////////////////////////////////////////////////////////////////////
 
  // App Notice
 exports.appNotice = functions.https.onRequest(async (req, res) => {
@@ -478,22 +485,21 @@ exports.byeMessage = functions.https.onRequest(async (req, res) => {
    }
    // App Talk Main History Update
    try{
-    await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
-      {
-        ATX_STATUS: MESSAGE_STATUS_DELETE,
-        TALK_APP_ID: params.TALK_APP_ID,
-        Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
-      }
-    );
-  }catch(err){
-    console.error(err);
-  }
+      await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
+        {
+          ATX_STATUS: MESSAGE_STATUS_DELETE,
+          TALK_APP_ID: params.TALK_APP_ID,
+          Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
+        }
+      );
+    }catch(err){
+      console.error(err);
+    }
   //Build the message payload and send the message
   var payload = {
     data: {        
       ATX_ID: params.ATX_ID,
-      ATX_STATUS:MESSAGE_STATUS_DELETE,
-      TALK_APP_ID: params.TALK_APP_ID
+      ATX_STATUS:MESSAGE_STATUS_DELETE
     }
   };
   // Create an options object that contains the time to live for the notification and the priority
@@ -545,30 +551,53 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
       var params = getParamsObj(req);
       console.log('----------[[requstBlackList]]---------- : '+ JSON.stringify(params));
    }
+   
    try{
-     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME; 
-     await admin.firestore().collection('APP_BLACK_LIST').doc(params.ABL_ID).set(params);
-     res.json(setResult("requstBlackList","S",`DOC ID: ${params.ABL_ID} created.`,''));
-   }catch(err){
-     console.error(err);
-     res.json(setResult("requstBlackList","E",err.stack,``));
-   }
-});
+        var blackList = new Object();
+        blackList.ATX_ID = params.ATX_ID;
+        blackList.REQUEST_APP_ID = params.TALK_APP_ID;
+        blackList.BLACK_LIST_APP_ID = params.BLACK_LIST_APP_ID;
+        blackList.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME; 
 
-// Request Voc
-exports.requestVoc = functions.https.onRequest(async (req, res) => {
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[requestVoc]]---------- : '+ JSON.stringify(params));
-   }
-   try{
-     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
-     await admin.firestore().collection('APP_REQUEST').doc(params.REQ_ID).set(params);
-     res.json(setResult("requestVoc","S",`DOC ID: ${params.REQ_ID} created.`,''));
+        await admin.firestore().collection('APP_BLACK_LIST').doc(params.BLA_ID).set(blackList);
    }catch(err){
      console.error(err);
-     res.json(setResult("requestVoc","E",err.stack,``));
    }
+    // App Talk Main History Update
+    try{
+      await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).update(
+        {
+          ATX_STATUS: MESSAGE_STATUS_DELETE,
+          TALK_APP_ID: params.TALK_APP_ID,
+          Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME        
+        }
+      );
+    }catch(err){
+      console.error(err);
+    }
+    //Build the message payload and send the message
+    var payload = {
+      data: {        
+        ATX_ID: params.ATX_ID,
+        ATX_STATUS:MESSAGE_STATUS_DELETE
+      }
+    };
+    // Create an options object that contains the time to live for the notification and the priority
+    const options = {
+        priority: "high",
+        timeToLive: 60 * 60 * 24 * 15
+    };
+  
+    await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
+    .then(function(response) {
+          console.log("Successfully bye message:", response);
+          //To-Do 메세지 전송 실패시 후 처리 
+          res.json(setResult("requstBlackList","S",``,''));
+      })
+      .catch(function(error) {
+          console.log("Error bye message:", error);
+          res.json(setResult("requstBlackList","E",error,''));
+      }); 
 });
 
 // Error Stack Trace
@@ -590,7 +619,7 @@ exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
 //////////////////////////////////////////////////////////////////////////////////////
 
 /*
-### Sample Process Functions && Cloud Filestore sample ###
+            ### Sample Process Functions && Cloud Filestore sample ###
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -647,9 +676,7 @@ exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
   });
 // [END makeUppercase]
 // [END all]
-*/
 
- // Delete Sample Functions
- // await admin.firestore().collection('SAMPLE').doc(params.APP_ID).delete();
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -2,9 +2,7 @@
 
 
 ---------------------------------------------------------------------------------
-
 [[ DB ]]
-
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
@@ -154,32 +152,22 @@ TALK_TYPE
 # SERVER - APP_BLACK_LIST
 ---------------------------------------------------------------------------------
 
-ABL_ID
 ATX_ID
-FROM_APP_ID
-FROM_COUNTRY
-FROM_COUNTRY_NAME
-FROM_GENDER
-FROM_LANG
+REQUEST_APP_ID
 BLACK_LIST_APP_ID
-TO_APP_ID
-TO_COUNTRY
-TO_COUNTRY_NAME
-TO_GENDER
-TO_LANG
 Z_INIT_ACCESS_TIME
 
 ---------------------------------------------------------------------------------
-# SERVER - APP_REQUEST
+# SERVER - APP_ERROR
 ---------------------------------------------------------------------------------
 
-REQ_ID
-REQ_APP_ID
-REQ_COUNTRY
-REQ_COUNTRY_NAME
-REQ_GENDER
-REQ_LANG
-REQ_TEXT
+ERROR_ID
+ERROR_APP_ID
+ERROR_COUNTRY
+ERROR_COUNTRY_NAME
+ERROR_GENDER
+ERROR_LANG
+ERROR_TEXT
 Z_INIT_ACCESS_TIME
 
 
