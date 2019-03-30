@@ -556,7 +556,6 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
         var blackList = new Object();
         blackList.ATX_ID = params.ATX_ID;
         blackList.REQUEST_APP_ID = params.TALK_APP_ID;
-        blackList.BLACK_LIST_APP_ID = params.BLACK_LIST_APP_ID;
         blackList.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME; 
 
         await admin.firestore().collection('APP_BLACK_LIST').doc(params.BLA_ID).set(blackList);
