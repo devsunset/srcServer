@@ -154,7 +154,6 @@ TALK_TYPE
 
 ATX_ID
 REQUEST_APP_ID
-BLACK_LIST_APP_ID
 Z_INIT_ACCESS_TIME
 
 ---------------------------------------------------------------------------------
