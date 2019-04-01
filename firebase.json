@@ -10,7 +10,6 @@
       ,{"source": "/byeMessage", "function": "byeMessage"}
       ,{"source": "/getTalkThreadData", "function": "getTalkThreadData"}
       ,{"source": "/requstBlackList", "function": "requstBlackList"}
-      ,{"source": "/errorStackTrace", "function": "errorStackTrace"}
      ],
     "ignore": [
       "firebase.json",

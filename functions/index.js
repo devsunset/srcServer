@@ -599,22 +599,6 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
       }); 
 });
 
-// Error Stack Trace
-exports.errorStackTrace = functions.https.onRequest(async (req, res) => {
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[errorStackTrace]]---------- : '+ JSON.stringify(params));
-   }   
-   try{
-     params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
-     await admin.firestore().collection('APP_ERROR').doc(params.ERR_ID).set(params);
-     res.json(setResult("errorStackTrace","S",`DOC ID: ${params.ERR_ID} created.`,''));
-   }catch(err){
-     console.error(err);
-     res.json(setResult("errorStackTrace","E",err.stack,``));
-   }
-});
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 /*

@@ -156,17 +156,3 @@ ATX_ID
 REQUEST_APP_ID
 Z_INIT_ACCESS_TIME
 
----------------------------------------------------------------------------------
-# SERVER - APP_ERROR
----------------------------------------------------------------------------------
-
-ERROR_ID
-ERROR_APP_ID
-ERROR_COUNTRY
-ERROR_COUNTRY_NAME
-ERROR_GENDER
-ERROR_LANG
-ERROR_TEXT
-Z_INIT_ACCESS_TIME
-
-
