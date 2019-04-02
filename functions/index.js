@@ -362,9 +362,21 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               });
           // TO
           await admin.messaging().sendToDevice(listData[idx].APP_KEY, payload,options)
-          .then(function(response) {
+          .then(function(response) {               
+                //메세지 전송 실패시 후 처리 
+                if(response.failureCount == 1){
+                  try{
+                        admin.firestore().collection('APP_USERS').doc(listData[idx].APP_ID).update(
+                      {
+                        APP_STATUS :'D',
+                        Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+                      }
+                    );
+                  }catch(err){
+                    console.error(err);
+                  }                  
+                }
                 console.log("Successfully send message:", response);
-                //To-Do 메세지 전송 실패시 후 처리 
                 res.json(setResult("sendMessage","S",'',''));
             })
             .catch(function(error) {
@@ -467,8 +479,22 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
 
     await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
       .then(function(response) {
+             //메세지 전송 실패시 후 처리 
+             /*
+             if(response.failureCount == 1){
+                try{
+                     admin.firestore().collection('APP_USERS').doc(params.TO_APP_ID).update(
+                    {
+                      APP_STATUS :'D',
+                      Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+                    }
+                  );
+                }catch(err){
+                  console.error(err);
+                }                  
+              }
+            */
             console.log("Successfully reply message:", response);
-            //To-Do 메세지 전송 실패시 후 처리 
             res.json(setResult("replyMessage","S",``,''));
         })
         .catch(function(error) {
@@ -510,8 +536,22 @@ exports.byeMessage = functions.https.onRequest(async (req, res) => {
 
   await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
     .then(function(response) {
+            //메세지 전송 실패시 후 처리 
+             /*
+             if(response.failureCount == 1){
+                try{
+                     admin.firestore().collection('APP_USERS').doc(params.TO_APP_ID).update(
+                    {
+                      APP_STATUS :'D',
+                      Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+                    }
+                  );
+                }catch(err){
+                  console.error(err);
+                }                  
+              }
+            */
           console.log("Successfully bye message:", response);
-          //To-Do 메세지 전송 실패시 후 처리 
           res.json(setResult("byeMessage","S",``,''));
       })
       .catch(function(error) {
@@ -589,8 +629,22 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
   
     await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
     .then(function(response) {
-          console.log("Successfully bye message:", response);
-          //To-Do 메세지 전송 실패시 후 처리 
+            //메세지 전송 실패시 후 처리 
+             /*
+             if(response.failureCount == 1){
+                try{
+                     admin.firestore().collection('APP_USERS').doc(params.TO_APP_ID).update(
+                    {
+                      APP_STATUS :'D',
+                      Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
+                    }
+                  );
+                }catch(err){
+                  console.error(err);
+                }                  
+              }
+            */
+          console.log("Successfully bye message:", response);          
           res.json(setResult("requstBlackList","S",``,''));
       })
       .catch(function(error) {
