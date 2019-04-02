@@ -137,6 +137,7 @@ exports.appNotice = functions.https.onRequest(async (req, res) => {
       try{
         await admin.firestore().collection('APP_USERS').doc(params.APP_ID).update(
           {
+            APP_STATUS :'A',
             Z_LAST_ACCESS_TIME : params.Z_LAST_ACCESS_TIME
           }
         );
@@ -226,8 +227,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
-                        // To-Do 조건처리 (world)
-                        if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
                             listData.push(doc.data());
                         }
                       });
@@ -264,8 +264,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
                      .orderBy("Z_LAST_ACCESS_TIME", "desc").limit(RANDOM_NUMBER_LIMIT).get()
                      .then(snapshot => {
                       snapshot.forEach(doc => {
-                        // To-Do 조건처리 (world)
-                        if (params.FROM_APP_ID != doc.data().APP_ID && params.FROM_COUNTRY != doc.data().COUNTRY ){
+                        if (params.FROM_APP_ID != doc.data().APP_ID){
                             listData.push(doc.data());
                         }
                       });
@@ -373,27 +372,28 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
               res.json(setResult("sendMessage","E",error,''));
             });
      }else{
-        // App Talk Main History
-        var appTalkMain =  {
-              ATX_ID: params.ATX_ID,
-              ATX_STATUS: MESSAGE_STATUS_X,
-              FROM_APP_ID: params.FROM_APP_ID,
-              FROM_COUNTRY: params.FROM_COUNTRY,
-              FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
-              FROM_GENDER: params.FROM_GENDER,
-              FROM_LANG: params.FROM_LANG,
-              TALK_APP_ID: params.APP_ID,
-              TALK_TEXT: params.TALK_TEXT,
-              TALK_TYPE: params.TALK_TYPE,
-              Z_INIT_ACCESS_TIME: params.Z_LAST_ACCESS_TIME
-            }
+            // App Talk Main History
+            /* Skip 
+            var appTalkMain =  {
+                  ATX_ID: params.ATX_ID,
+                  ATX_STATUS: MESSAGE_STATUS_X,
+                  FROM_APP_ID: params.FROM_APP_ID,
+                  FROM_COUNTRY: params.FROM_COUNTRY,
+                  FROM_COUNTRY_NAME: params.FROM_COUNTRY_NAME,
+                  FROM_GENDER: params.FROM_GENDER,
+                  FROM_LANG: params.FROM_LANG,
+                  TALK_APP_ID: params.APP_ID,
+                  TALK_TEXT: params.TALK_TEXT,
+                  TALK_TYPE: params.TALK_TYPE,
+                  Z_INIT_ACCESS_TIME: params.Z_LAST_ACCESS_TIME
+                }
 
             try{
               await admin.firestore().collection('APP_TALK_MAIN').doc(params.ATX_ID).set(appTalkMain);
             }catch(err){
               console.error(err);             
             }
-
+            */
         res.json(setResult("sendMessage","E","TARGET_NO_DATA",''));
      }
 });
