@@ -8,7 +8,6 @@
       ,{"source": "/sendMessage", "function": "sendMessage"}
       ,{"source": "/replyMessage", "function": "replyMessage"}
       ,{"source": "/byeMessage", "function": "byeMessage"}
-      ,{"source": "/getTalkThreadData", "function": "getTalkThreadData"}
       ,{"source": "/requstBlackList", "function": "requstBlackList"}
      ],
     "ignore": [

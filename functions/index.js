@@ -556,31 +556,6 @@ exports.byeMessage = functions.https.onRequest(async (req, res) => {
       }); 
 });
 
-// Get Talk Thread Data
-exports.getTalkThreadData = functions.https.onRequest(async (req, res) => {
-   if(LOG_FLAG){
-      var params = getParamsObj(req);
-      console.log('----------[[getTalkThreadData]]---------- : '+ JSON.stringify(params));
-   }
-
-  var listData = new Array();
-
-  var dataRef = admin.firestore().collection('APP_TALK_THREAD');
-
-  await dataRef.where('TALK_ID', '==', params.TALK_ID).get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        listData.push(doc.data());
-      });
-    })
-    .catch(err => {
-      console.log('Error getting documents', err);
-      res.json(setResult("getTalkThreadData","E",'Error getting documents : '+err.stack,''));
-    });
-
-   res.json(setResult("getTalkThreadData","S",``,listData));
-});
-
 // Request Black List
 exports.requstBlackList = functions.https.onRequest(async (req, res) => {
    if(LOG_FLAG){
