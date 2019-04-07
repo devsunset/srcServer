@@ -650,7 +650,7 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
 //////////////////////////////////////////////////////////////////////////////////////
 
 /*
-            ### Sample Process Functions && Cloud Filestore sample ###
+            ### Sample Functions && Cloud Filestore sample ###
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
