@@ -156,7 +156,8 @@ exports.appInfoInit = functions.https.onRequest(async (req, res) => {
 	}
 
 	params.APP_STATUS = "A"; // Active User
-	params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+  params.Z_INIT_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
+  params.Z_LAST_ACCESS_TIME = params.Z_LAST_ACCESS_TIME;
 
 	try{
 	  await admin.firestore().collection('APP_USERS').doc(params.APP_ID).set(params);
