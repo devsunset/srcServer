@@ -28,6 +28,9 @@ const LOG_FLAG = true;
 // TARGET SEARCH LIMIT
 const RANDOM_NUMBER_LIMIT = 1000;
 
+// MESSAGE_LIVE_PERIOD
+const MESSAGE_LIVE_PERIOD = 5;
+
 // MESSSAGE STATUS
 const MESSAGE_STATUS_FIRST = 'F';
 const MESSAGE_STATUS_PROCEDDING = 'P';
@@ -351,7 +354,7 @@ exports.sendMessage = functions.https.onRequest(async (req, res) => {
           // Create an options object that contains the time to live for the notification and the priority
           const options = {
               priority: "high",
-              timeToLive: 60 * 60 * 24 * 15
+              timeToLive: 60 * 60 * 24 * MESSAGE_LIVE_PERIOD
           };
           // FROM
           await admin.messaging().sendToDevice(params.FROM_APP_KEY, payload,options)
@@ -475,7 +478,7 @@ exports.replyMessage = functions.https.onRequest(async (req, res) => {
     // Create an options object that contains the time to live for the notification and the priority
     const options = {
         priority: "high",
-        timeToLive: 60 * 60 * 24 * 15
+        timeToLive: 60 * 60 * 24 * MESSAGE_LIVE_PERIOD
     };
 
     await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
@@ -530,7 +533,7 @@ exports.byeMessage = functions.https.onRequest(async (req, res) => {
   // Create an options object that contains the time to live for the notification and the priority
   const options = {
       priority: "high",
-      timeToLive: 60 * 60 * 24 * 15
+      timeToLive: 60 * 60 * 24 * MESSAGE_LIVE_PERIOD
   };
 
   await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
@@ -596,7 +599,7 @@ exports.requstBlackList = functions.https.onRequest(async (req, res) => {
     // Create an options object that contains the time to live for the notification and the priority
     const options = {
         priority: "high",
-        timeToLive: 60 * 60 * 24 * 15
+        timeToLive: 60 * 60 * 24 * MESSAGE_LIVE_PERIOD
     };
   
     await admin.messaging().sendToDevice(params.TO_APP_KEY, payload,options)
